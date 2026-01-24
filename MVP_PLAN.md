@@ -3,7 +3,7 @@
 This document outlines the step-by-step plan to build the Minimum Viable Product (MVP) for Clip Lumina.
 
 ## Phase 1: Core Backend (Rust)
--   [ ] **Step 1.1: Implement Background Clipboard Watcher**
+-   [x] **Step 1.1: Implement Background Clipboard Watcher**
     -   Modify `src-tauri/src/main.rs`.
     -   Spawn a dedicated thread that polls the clipboard.
     -   Use `tauri::Emitter` to emit an event (`clipboard://change`) to the frontend whenever content changes.
