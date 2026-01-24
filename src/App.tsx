@@ -15,16 +15,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-6 text-slate-200 font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-brand-bg bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-bg via-brand-bg-deep to-brand-bg flex items-center justify-center p-6 text-brand-text font-sans selection:bg-brand-primary/30">
       {/* Decorative Orbs */}
-      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/10 blur-[120px]" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[35%] h-[35%] rounded-full bg-indigo-600/10 blur-[100px]" />
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-primary-strong/10 blur-[120px]" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[35%] h-[35%] rounded-full bg-brand-secondary-strong/10 blur-[100px]" />
 
       <main className="relative w-full max-w-lg">
         <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
           {/* Header */}
           <header className="mb-10 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-400 mb-6 shadow-lg shadow-blue-500/20">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-primary-strong to-brand-accent mb-6 shadow-lg shadow-brand-primary-strong/20">
               <svg 
                 className="w-8 h-8 text-white" 
                 fill="none" 
@@ -35,10 +35,10 @@ function App() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400">
+            <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white to-brand-text-muted">
               ClipLumina
             </h1>
-            <p className="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">
+            <p className="text-brand-text-muted text-sm font-medium uppercase tracking-[0.2em]">
               Next-Gen Clipboard Manager
             </p>
           </header>
@@ -49,7 +49,7 @@ function App() {
               onClick={readClip}
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
-              className="group relative w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-xl shadow-blue-900/40 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+              className="group relative w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-primary-strong to-brand-secondary-strong hover:from-brand-primary hover:to-brand-secondary text-white font-bold shadow-xl shadow-brand-primary-strong/40 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
             >
               <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
               <span className="relative flex items-center justify-center gap-2">
@@ -64,11 +64,11 @@ function App() {
             <div className={`transition-all duration-500 ease-out ${text ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none h-0 p-0 overflow-hidden'}`}>
               <div className="bg-black/20 border border-white/5 rounded-2xl p-5 group">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">Current Content</span>
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="text-xs font-bold text-brand-primary hover:text-brand-primary-hover uppercase tracking-widest">Current Content</span>
+                  <div className="h-1.5 w-1.5 rounded-full bg-brand-primary animate-pulse" />
                 </div>
-                <div className="bg-slate-900/50 rounded-xl p-4 border border-white/5 max-h-48 overflow-y-auto custom-scrollbar">
-                  <p className="text-slate-300 font-mono text-sm break-all leading-relaxed">
+                <div className="bg-brand-bg-deep/50 rounded-xl p-4 border border-white/5 max-h-48 overflow-y-auto custom-scrollbar">
+                  <p className="text-brand-text-muted/90 font-mono text-sm break-all leading-relaxed">
                     {text}
                   </p>
                 </div>
@@ -78,7 +78,7 @@ function App() {
         </div>
 
         {/* Footer info */}
-        <p className="mt-8 text-center text-slate-500 text-xs font-medium">
+        <p className="mt-8 text-center text-brand-text-dim text-xs font-medium">
           SECURE & ENCRYPTED CLIPBOARD ACCESS
         </p>
       </main>
