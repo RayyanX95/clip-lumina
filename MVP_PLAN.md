@@ -26,15 +26,15 @@ This document outlines the step-by-step plan to build the Minimum Viable Product
     -   Apply the "Premium" aesthetic (glassmorphism, nice typography).
 
 ## Phase 3: Data Persistence
--   [ ] **Step 3.1: Local Storage Strategy**
+-   [x] **Step 3.1: Local Storage Strategy**
     -   Decide on storage: `tauri-plugin-store` (simple key-value) or File I/O.
     -   For MVP, `tauri-plugin-store` is easiest and robust enough.
--   [ ] **Step 3.2: Implement Load/Save**
+-   [x] **Step 3.2: Implement Load/Save**
     -   Load history on app launch.
     -   Save history whenever a new item is added.
 
 ## Phase 4: Refinement & Polish
--   [ ] **Step 4.1: Window Behavior**
+-   [x] **Step 4.1: Window Behavior**
     -   Ensure standard window decorations are hidden (no title bar).
     -   Make the window appear "floating" near the tray or centered.
     -   "Lost Focus" behavior: Close/Hide window when user clicks away.

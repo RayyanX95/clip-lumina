@@ -1,7 +1,13 @@
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useClipboardHistory } from "./hooks/useClipboardHistory";
 
 function App() {
-  const { history } = useClipboardHistory();
+  const { history, deleteClip, copyToClipboard } = useClipboardHistory();
+
+  const handleCopy = async (content: string) => {
+      await copyToClipboard(content);
+      await getCurrentWindow().hide();
+  };
 
   return (
     <div className="min-h-screen bg-brand-bg bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-bg via-brand-bg-deep to-brand-bg flex flex-col p-4 text-brand-text font-sans h-screen overflow-hidden">
@@ -37,31 +43,37 @@ function App() {
              <p className="text-xs mt-1">Copy something to see it here</p>
           </div>
         ) : (
-          history.map((item, index) => (
+          history.map((item) => (
             <div 
-              key={index}
-              className="group relative bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-primary/30 rounded-xl p-3 transition-all duration-200 cursor-default"
+              key={item.id}
+              onClick={() => handleCopy(item.content)}
+              className="group relative bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-primary/30 rounded-xl p-3 transition-all duration-200 cursor-pointer"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-1 w-1 h-1 rounded-full bg-brand-primary/50 group-hover:bg-brand-primary transition-colors" />
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 pr-8">
                   <p className="text-sm text-brand-text-muted group-hover:text-white font-medium truncate mb-1 transition-colors">
                      {/* Heuristic for title: First line or first 40 chars */}
-                     {item.split('\n')[0].substring(0, 40) || "Untitled Clip"}
+                     {item.content.split('\n')[0].substring(0, 40) || "Untitled Clip"}
                   </p>
                   <pre className="text-xs text-brand-text-dim font-mono bg-black/20 rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border border-white/5">
-                    {item.trim()}
+                    {item.content.trim()}
                   </pre>
                 </div>
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
-                   {/* Actions (Future: Copy, Delete) */}
+                
+                {/* Actions */}
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-2 flex flex-col gap-1 bg-brand-bg-deep/80 backdrop-blur-sm rounded-lg border border-white/5 p-0.5 shadow-xl transform translate-x-1 group-hover:translate-x-0 transition-transform">
+                   <button 
+                     onClick={(e) => deleteClip(item.id, e)}
+                     className="p-1.5 rounded-md hover:bg-red-500/20 text-brand-text-dim hover:text-red-400 transition-colors"
+                     title="Delete"
+                   >
+                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                     </svg>
+                   </button>
                 </div>
               </div>
-              
-              {/* Timestamp or index (Optional) */}
-               <span className="absolute top-2 right-2 text-[10px] text-brand-text-dim/20 font-mono">
-                 #{history.length - index}
-               </span>
             </div>
           ))
         )}
