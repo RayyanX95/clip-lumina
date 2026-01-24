@@ -7,6 +7,7 @@ export interface ClipItem {
   content: string;
   timestamp: number;
   pinned: boolean;
+  kind?: string;
 }
 
 export function useClipboardHistory() {

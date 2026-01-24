@@ -9,9 +9,10 @@ interface ClipItemProps {
 }
 
 export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
-  const isLink = item.content.startsWith('http');
-  const isCode = item.content.length > 50 && (item.content.includes('{') || item.content.includes(';'));
-  const type = isLink ? 'LINK' : isCode ? 'CODE SNIPPET' : 'TEXT';
+  const isImage = item.kind === 'image' || item.content.startsWith('data:image');
+  const isLink = !isImage && item.content.startsWith('http');
+  const isCode = !isImage && !isLink && item.content.length > 50 && (item.content.includes('{') || item.content.includes(';'));
+  const type = isImage ? 'IMAGE' : isLink ? 'LINK' : isCode ? 'CODE SNIPPET' : 'TEXT';
 
   return (
     <div
@@ -50,15 +51,22 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
               })}
             </span>
           </div>
-          <pre
-            className={`text-xs font-mono rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border select-none ${
-              item.pinned
-                ? "bg-black/30 text-white border-brand-primary/10"
-                : "bg-black/20 text-brand-text border-white/5 group-hover:border-white/10"
-            }`}
-          >
-            {item.content.trim()}
-          </pre>
+          
+          {isImage ? (
+              <div className="relative rounded-lg overflow-hidden border border-white/5 bg-black/20 w-fit max-w-full">
+                 <img src={item.content} alt="Copied Image" className="max-h-32 object-contain" />
+              </div>
+          ) : (
+              <pre
+                className={`text-xs font-mono rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border select-none ${
+                  item.pinned
+                    ? "bg-black/30 text-white border-brand-primary/10"
+                    : "bg-black/20 text-brand-text border-white/5 group-hover:border-white/10"
+                }`}
+              >
+                {item.content.trim()}
+              </pre>
+          )}
         </div>
 
         {/* Actions */}

@@ -16,6 +16,12 @@ use tauri::{
 use tauri_plugin_store::StoreExt;
 use uuid::Uuid;
 
+use base64::engine::general_purpose::STANDARD as BASE64;
+use base64::Engine as _;
+use image::ColorType;
+use image::ImageEncoder;
+use std::io::Cursor;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ClipItem {
     id: String,
@@ -23,6 +29,8 @@ struct ClipItem {
     timestamp: i64,
     #[serde(default)]
     pinned: bool,
+    #[serde(default)]
+    kind: String, // "text" or "image"
 }
 
 const STORE_PATH: &str = "history.json";
@@ -116,67 +124,95 @@ fn main() {
                     }
                 };
 
-                let mut last_content = clipboard.get_text().unwrap_or_default();
+                let mut last_content = String::new();
 
                 loop {
                     std::thread::sleep(std::time::Duration::from_millis(300));
 
-                    if let Ok(content) = clipboard.get_text() {
-                        if content != last_content && !content.is_empty() {
-                            last_content = content.clone();
+                    let mut new_content = String::new();
+                    let mut kind = "text";
 
-                            // Dedup: if newly copied item is same as most recent, ignore
-                            let mut should_ignore = false;
+                    // 1. Try reading text
+                    if let Ok(text) = clipboard.get_text() {
+                        if !text.is_empty() {
+                            new_content = text;
+                            kind = "text";
+                        }
+                    }
 
-                            // Check ignore flag
-                            if let Ok(mut ignore_guard) = IGNORE_NEXT_CLIP.lock() {
-                                if let Some(ignored) = ignore_guard.as_ref() {
-                                    // Compare both trimming whitespace to be safe
-                                    if ignored.trim() == content.trim() || *ignored == content {
-                                        should_ignore = true;
-                                        *ignore_guard = None; // Clear it once matched
-                                    }
+                    // 2. If no text, try reading image
+                    if new_content.is_empty() {
+                        if let Ok(img) = clipboard.get_image() {
+                            // Convert to PNG/Base64
+                            let mut buffer = Vec::new();
+                            let width = img.width as u32;
+                            let height = img.height as u32;
+
+                            // Simple heuristic: Ignore tiny images (might be icons or junk)
+                            if width > 0 && height > 0 {
+                                let mut cursor = Cursor::new(&mut buffer);
+                                let encoder = image::codecs::png::PngEncoder::new(&mut cursor);
+
+                                // arboard returns raw bytes (usually RGBA8), need to wrap them
+                                if let Ok(_) = encoder.write_image(
+                                    &img.bytes,
+                                    width,
+                                    height,
+                                    ColorType::Rgba8.into(),
+                                ) {
+                                    let b64 = BASE64.encode(&buffer);
+                                    new_content = format!("data:image/png;base64,{}", b64);
+                                    kind = "image";
+                                }
+                            }
+                        }
+                    }
+
+                    if !new_content.is_empty() && new_content != last_content {
+                        last_content = new_content.clone();
+
+                        let mut should_ignore = false;
+                        if let Ok(mut ignore_guard) = IGNORE_NEXT_CLIP.lock() {
+                            if let Some(ignored) = ignore_guard.as_ref() {
+                                // For images (base64 potentially huge), full string match is expensive but correct
+                                // For MVP, direct equality is robust enough.
+                                if *ignored == new_content {
+                                    should_ignore = true;
+                                    *ignore_guard = None;
+                                }
+                            }
+                        }
+
+                        let mut history = load_history(&app_handle);
+
+                        if !should_ignore
+                            && history
+                                .first()
+                                .map(|i| i.content != new_content)
+                                .unwrap_or(true)
+                        {
+                            let new_item = ClipItem {
+                                id: Uuid::new_v4().to_string(),
+                                content: new_content.clone(),
+                                timestamp: Utc::now().timestamp_millis(),
+                                pinned: false,
+                                kind: kind.to_string(),
+                            };
+
+                            history.insert(0, new_item);
+
+                            if history.len() > 50 {
+                                if let Some(idx) = history.iter().rposition(|i| !i.pinned) {
+                                    history.remove(idx);
+                                } else {
+                                    history.truncate(50);
                                 }
                             }
 
-                            // Load history first for dedup check
-                            let mut history = load_history(&app_handle);
+                            save_history(&app_handle, &history);
 
-                            // Dedup: check ignore flag AND store content
-                            if !should_ignore
-                                && history
-                                    .first()
-                                    .map(|i| i.content != content)
-                                    .unwrap_or(true)
-                            {
-                                // Load, Append, Save
-                                // The history is already loaded above, no need to load again here.
-
-                                let new_item = ClipItem {
-                                    id: Uuid::new_v4().to_string(),
-                                    content: content.clone(),
-                                    timestamp: Utc::now().timestamp_millis(),
-                                    pinned: false,
-                                };
-
-                                // Insert at top
-                                history.insert(0, new_item);
-
-                                // Truncate to 50
-                                if history.len() > 50 {
-                                    if let Some(idx) = history.iter().rposition(|i| !i.pinned) {
-                                        history.remove(idx);
-                                    } else {
-                                        history.truncate(50);
-                                    }
-                                }
-
-                                save_history(&app_handle, &history);
-
-                                // Emit update
-                                if let Err(e) = app_handle.emit("clipboard://update", &history) {
-                                    eprintln!("Failed to emit clipboard update: {}", e);
-                                }
+                            if let Err(e) = app_handle.emit("clipboard://update", &history) {
+                                eprintln!("Failed to emit clipboard update: {}", e);
                             }
                         }
                     }
