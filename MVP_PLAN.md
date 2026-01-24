@@ -8,7 +8,7 @@ This document outlines the step-by-step plan to build the Minimum Viable Product
     -   Spawn a dedicated thread that polls the clipboard.
     -   Use `tauri::Emitter` to emit an event (`clipboard://change`) to the frontend whenever content changes.
     -   *Goal:* Frontend should automatically know when clipboard changes without clicking a button.
--   [ ] **Step 1.2: System Tray Setup**
+-   [x] **Step 1.2: System Tray Setup**
     -   Add `tauri-plugin-positioner` (optional but good for tray apps) or standard Tauri tray configuration.
     -   Modify `src-tauri/tauri.conf.json` (or capabilities) if necessary for tray permissions.
     -   Update `main.rs` to initialize the System Tray.

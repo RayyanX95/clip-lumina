@@ -1,4 +1,9 @@
 use arboard::Clipboard;
+use tauri::{
+    menu::{Menu, MenuItem},
+    tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
+    ActivationPolicy, Manager,
+};
 
 #[tauri::command]
 fn get_current_clip() -> String {
@@ -12,6 +17,11 @@ fn main() {
             use tauri::Emitter; // Ensure Emitter trait is in scope
             let app_handle = app.handle().clone();
 
+            // 1. Hide Dock Icon (macOS)
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(ActivationPolicy::Accessory);
+
+            // 2. Setup Background Clipboard Listener
             std::thread::spawn(move || {
                 let mut clipboard = match Clipboard::new() {
                     Ok(c) => c,
@@ -21,20 +31,14 @@ fn main() {
                     }
                 };
 
-                // Initialize with current content to avoid re-triggering immediately
-                // or start empty to trigger on first loop.
-                // Let's start empty so the UI gets the current clip automatically on connect if needed
-                // OR better: read first, so we don't spam. The UI can fetch initial state.
                 let mut last_content = clipboard.get_text().unwrap_or_default();
 
                 loop {
-                    // Poll interval
                     std::thread::sleep(std::time::Duration::from_millis(500));
 
                     if let Ok(content) = clipboard.get_text() {
                         if content != last_content && !content.is_empty() {
                             last_content = content.clone();
-                            // Emit event to frontend
                             if let Err(e) = app_handle.emit("clipboard://change", &last_content) {
                                 eprintln!("Failed to emit clipboard event: {}", e);
                             } else {
@@ -44,6 +48,38 @@ fn main() {
                     }
                 }
             });
+
+            // 3. Setup System Tray
+            let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&quit_i])?;
+
+            let _tray = TrayIconBuilder::new()
+                .icon(app.default_window_icon().unwrap().clone())
+                .menu(&menu)
+                .show_menu_on_left_click(false)
+                .on_menu_event(|app, event| {
+                    if event.id() == "quit" {
+                        app.exit(0);
+                    }
+                })
+                .on_tray_icon_event(|tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        ..
+                    } = event
+                    {
+                        let app = tray.app_handle();
+                        if let Some(window) = app.get_webview_window("main") {
+                            if window.is_visible().unwrap_or(false) {
+                                let _ = window.hide();
+                            } else {
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
+                        }
+                    }
+                })
+                .build(app)?;
 
             Ok(())
         })
