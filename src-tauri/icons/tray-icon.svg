@@ -1,0 +1,10 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Clipboard Body -->
+  <rect x="6" y="6" width="20" height="24" rx="3" fill="white"/>
+  
+  <!-- Clipboard Clip -->
+  <rect x="11" y="2" width="10" height="6" rx="2" fill="white"/>
+  
+  <!-- AI Star Icon (Four-pointed) -->
+  <path d="M16 10L17.5 14.5L22 16L17.5 17.5L16 22L14.5 17.5L10 16L14.5 14.5L16 10Z" fill="black"/>
+</svg>
