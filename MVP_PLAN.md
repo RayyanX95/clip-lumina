@@ -38,8 +38,8 @@ This document outlines the step-by-step plan to build the Minimum Viable Product
     -   Ensure standard window decorations are hidden (no title bar).
     -   Make the window appear "floating" near the tray or centered.
     -   "Lost Focus" behavior: Close/Hide window when user clicks away.
--   [ ] **Step 4.2: Performance Tuning**
-    -   Verify CPU usage of the polling thread.
+-   [x] **Step 4.2: Performance Tuning**
+    -   Verify CPU usage of the polling thread. (Measured 0.0% usage in idle state via `ps aux`)
 
 ---
 
