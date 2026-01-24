@@ -220,16 +220,35 @@ fn main() {
             });
 
             // 3. Setup System Tray
+            let show_i = MenuItem::with_id(app, "show", "Show ClipLumina", true, None::<&str>)?;
+            let clear_i = MenuItem::with_id(app, "clear", "Clear History", true, None::<&str>)?;
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&quit_i])?;
+            let menu = Menu::with_items(app, &[&show_i, &clear_i, &quit_i])?;
 
             let _tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .on_menu_event(|app, event| {
-                    if event.id() == "quit" {
-                        app.exit(0);
+                    match event.id().as_ref() {
+                        "show" => {
+                            if let Some(window) = app.get_webview_window("main") {
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
+                        }
+                        "clear" => {
+                            // Replicating clear logic here since we can't easily call the command function
+                            // Note: ideally refactor to shared helper, but this is short.
+                            let mut history = load_history(app);
+                            history.retain(|item| item.pinned);
+                            save_history(app, &history);
+                            let _ = app.emit("clipboard://update", &history);
+                        }
+                        "quit" => {
+                            app.exit(0);
+                        }
+                        _ => {}
                     }
                 })
                 .on_tray_icon_event(|tray, event| {
@@ -238,6 +257,7 @@ fn main() {
                         ..
                     } = event
                     {
+                        // ... existing click toggle logic ...
                         let now = Utc::now().timestamp_millis();
                         let last = LAST_CLICK.load(Ordering::Relaxed);
                         if now - last < 300 {
