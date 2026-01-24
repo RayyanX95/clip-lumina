@@ -122,12 +122,8 @@ fn main() {
                     std::thread::sleep(std::time::Duration::from_millis(300));
 
                     if let Ok(content) = clipboard.get_text() {
-                        // Normalize content (fix duplication issues with whitespace/newlines)
-                        // Actually, let's keep exact content but be careful with comparison
-
                         if content != last_content && !content.is_empty() {
                             last_content = content.clone();
-                            println!("Detected change: '{}'", content.replace("\n", "\\n"));
 
                             // Dedup: if newly copied item is same as most recent, ignore
                             let mut should_ignore = false;
@@ -139,13 +135,6 @@ fn main() {
                                     if ignored.trim() == content.trim() || *ignored == content {
                                         should_ignore = true;
                                         *ignore_guard = None; // Clear it once matched
-                                        println!("Ignoring self-copied content (matched)");
-                                    } else {
-                                        println!(
-                                            "Ignore check failed: stored='{}' vs new='{}'",
-                                            ignored.replace("\n", "\\n"),
-                                            content.replace("\n", "\\n")
-                                        );
                                     }
                                 }
                             }
@@ -170,29 +159,23 @@ fn main() {
                                     pinned: false,
                                 };
 
-                                // Insert at top (but after pinned items? Or strictly chronological?
-                                // Let's keep chronological for now, frontend can sort)
+                                // Insert at top
                                 history.insert(0, new_item);
 
-                                // Truncate to 50 (but don't delete pinned items?)
-                                // Simplification: Just keep 50 total for now to avoid complexity or unbounded growth
+                                // Truncate to 50
                                 if history.len() > 50 {
-                                    // Try to remove unpinned items from the end first
                                     if let Some(idx) = history.iter().rposition(|i| !i.pinned) {
                                         history.remove(idx);
                                     } else {
-                                        // All are pinned? Hard limit
                                         history.truncate(50);
                                     }
                                 }
 
                                 save_history(&app_handle, &history);
 
-                                // Emit just the full list for simplicity
+                                // Emit update
                                 if let Err(e) = app_handle.emit("clipboard://update", &history) {
                                     eprintln!("Failed to emit clipboard update: {}", e);
-                                } else {
-                                    println!("Clipboard updated: {:.20}...", content);
                                 }
                             }
                         }
@@ -222,7 +205,6 @@ fn main() {
                         let now = Utc::now().timestamp_millis();
                         let last = LAST_CLICK.load(Ordering::Relaxed);
                         if now - last < 300 {
-                            println!("Ignoring double click");
                             return;
                         }
                         LAST_CLICK.store(now, Ordering::Relaxed);
@@ -230,15 +212,12 @@ fn main() {
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
                             let is_visible = window.is_visible().unwrap_or(false);
-                            println!("Tray Click! Window visible? {}", is_visible);
 
                             if is_visible {
                                 let _ = window.hide();
-                                println!("Hiding window...");
                             } else {
                                 let _ = window.show();
                                 let _ = window.set_focus();
-                                println!("Showing window...");
                             }
                         }
                     }
@@ -246,16 +225,16 @@ fn main() {
                 .build(app)?;
 
             // 4. Window Behavior (Hide on Blur)
-            // if let Some(window) = app.get_webview_window("main") {
-            //     let w_clone = window.clone();
-            //     window.on_window_event(move |event| {
-            //         if let tauri::WindowEvent::Focused(focused) = event {
-            //             if !focused {
-            //                 let _ = w_clone.hide();
-            //             }
-            //         }
-            //     });
-            // }
+            if let Some(window) = app.get_webview_window("main") {
+                let w_clone = window.clone();
+                window.on_window_event(move |event| {
+                    if let tauri::WindowEvent::Focused(focused) = event {
+                        if !focused {
+                            let _ = w_clone.hide();
+                        }
+                    }
+                });
+            }
 
             Ok(())
         })

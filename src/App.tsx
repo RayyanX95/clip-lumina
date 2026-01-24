@@ -78,16 +78,20 @@ function App() {
                 }`} />
                 
                 <div className="flex-1 min-w-0 pr-8">
-                  <p className={`text-sm font-medium truncate mb-1 transition-colors ${
-                      item.pinned ? "text-white" : "text-brand-text-muted group-hover:text-white"
-                  }`}>
-                     {/* Heuristic for title: First line or first 40 chars */}
-                     {item.content.split('\n')[0].substring(0, 40) || "Untitled Clip"}
-                  </p>
-                  <pre className={`text-xs font-mono rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border ${
+                  <div className="flex items-center justify-between mb-1">
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                          item.pinned ? "text-brand-accent" : "text-brand-text-dim group-hover:text-brand-text-muted"
+                      }`}>
+                         {item.content.startsWith('http') ? 'LINK' : item.content.length > 50 ? 'TEXT SNIPPET' : 'TEXT'}
+                      </span>
+                      <span className="text-[10px] text-brand-text-dim/50 font-mono">
+                          {new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </span>
+                  </div>
+                  <pre className={`text-xs font-mono rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border select-none ${
                       item.pinned 
-                        ? "bg-black/30 text-brand-text-muted border-brand-primary/10" 
-                        : "bg-black/20 text-brand-text-dim border-white/5"
+                        ? "bg-black/30 text-white border-brand-primary/10" 
+                        : "bg-black/20 text-brand-text border-white/5 group-hover:border-white/10"
                   }`}>
                     {item.content.trim()}
                   </pre>
