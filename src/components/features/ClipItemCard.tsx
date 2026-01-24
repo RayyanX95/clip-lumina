@@ -65,7 +65,7 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
         <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-2 flex flex-col gap-1 bg-brand-bg-deep/80 backdrop-blur-sm rounded-lg border border-white/5 p-0.5 shadow-xl translate-x-1 group-hover:translate-x-0">
           <button
             onClick={(e) => onPin(item.id, e)}
-            className={`p-1.5 rounded-md transition-colors ${
+            className={`p-1.5 rounded-md transition-colors cursor-pointer ${
               item.pinned
                 ? "text-brand-accent bg-brand-accent/10 hover:bg-brand-accent/20"
                 : "text-brand-text-dim hover:text-brand-accent hover:bg-brand-accent/5"
@@ -76,7 +76,7 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
           </button>
           <button
             onClick={(e) => onDelete(item.id, e)}
-            className="p-1.5 rounded-md hover:bg-red-500/20 text-brand-text-dim hover:text-red-400 transition-colors"
+            className="p-1.5 rounded-md cursor-pointer hover:bg-red-500/20 text-brand-text-dim hover:text-red-400 transition-colors"
             title="Delete"
           >
             <Icons.Trash className="w-3.5 h-3.5" />

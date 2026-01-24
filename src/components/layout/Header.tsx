@@ -23,7 +23,7 @@ export function Header({ count, onClear }: HeaderProps) {
           {count > 0 && (
             <button
               onClick={onClear}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 hover:text-red-400 text-brand-text-dim transition-colors border border-white/5"
+              className="p-1.5 cursor-pointer rounded-lg bg-white/5 hover:bg-white/10 hover:text-red-400 text-brand-text-dim transition-colors border border-white/5"
               title="Clear All (Keep Pinned)"
             >
               <Icons.Trash className="w-4 h-4" />
