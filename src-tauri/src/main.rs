@@ -3,6 +3,11 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
+use std::sync::atomic::{AtomicI64, Ordering};
+use std::sync::Mutex;
+static LAST_CLICK: AtomicI64 = AtomicI64::new(0);
+static IGNORE_NEXT_CLIP: Mutex<Option<String>> = Mutex::new(None);
+
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
@@ -16,6 +21,8 @@ struct ClipItem {
     id: String,
     content: String,
     timestamp: i64,
+    #[serde(default)]
+    pinned: bool,
 }
 
 const STORE_PATH: &str = "history.json";
@@ -45,13 +52,39 @@ fn delete_clip(app: AppHandle, id: String) -> Vec<ClipItem> {
     let mut history = load_history(&app);
     history.retain(|item| item.id != id);
     save_history(&app, &history);
-    // Emit update so other windows/listeners know
+    let _ = app.emit("clipboard://update", &history);
+    history
+}
+
+#[tauri::command]
+fn toggle_pin_clip(app: AppHandle, id: String) -> Vec<ClipItem> {
+    let mut history = load_history(&app);
+    if let Some(item) = history.iter_mut().find(|i| i.id == id) {
+        item.pinned = !item.pinned;
+    }
+    save_history(&app, &history);
+    let _ = app.emit("clipboard://update", &history);
+    history
+}
+
+#[tauri::command]
+fn clear_history(app: AppHandle) -> Vec<ClipItem> {
+    let mut history = load_history(&app);
+    // Keep only pinned items
+    history.retain(|item| item.pinned);
+    save_history(&app, &history);
     let _ = app.emit("clipboard://update", &history);
     history
 }
 
 #[tauri::command]
 fn copy_to_clip(content: String) -> Result<(), String> {
+    // Set ignore flag BEFORE writing to clipboard
+    if let Ok(mut ignore) = IGNORE_NEXT_CLIP.lock() {
+        println!("Setting ignore for: '{}'", content.replace("\n", "\\n"));
+        *ignore = Some(content.clone());
+    }
+
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
     clipboard.set_text(content).map_err(|e| e.to_string())
 }
@@ -86,34 +119,71 @@ fn main() {
                 let mut last_content = clipboard.get_text().unwrap_or_default();
 
                 loop {
-                    std::thread::sleep(std::time::Duration::from_millis(500));
+                    std::thread::sleep(std::time::Duration::from_millis(300));
 
                     if let Ok(content) = clipboard.get_text() {
+                        // Normalize content (fix duplication issues with whitespace/newlines)
+                        // Actually, let's keep exact content but be careful with comparison
+
                         if content != last_content && !content.is_empty() {
                             last_content = content.clone();
-
-                            // Load, Append, Save
-                            let mut history = load_history(&app_handle);
+                            println!("Detected change: '{}'", content.replace("\n", "\\n"));
 
                             // Dedup: if newly copied item is same as most recent, ignore
-                            // (Though last_content check does this partially, this is for store consistency)
-                            if history
-                                .first()
-                                .map(|i| i.content != content)
-                                .unwrap_or(true)
+                            let mut should_ignore = false;
+
+                            // Check ignore flag
+                            if let Ok(mut ignore_guard) = IGNORE_NEXT_CLIP.lock() {
+                                if let Some(ignored) = ignore_guard.as_ref() {
+                                    // Compare both trimming whitespace to be safe
+                                    if ignored.trim() == content.trim() || *ignored == content {
+                                        should_ignore = true;
+                                        *ignore_guard = None; // Clear it once matched
+                                        println!("Ignoring self-copied content (matched)");
+                                    } else {
+                                        println!(
+                                            "Ignore check failed: stored='{}' vs new='{}'",
+                                            ignored.replace("\n", "\\n"),
+                                            content.replace("\n", "\\n")
+                                        );
+                                    }
+                                }
+                            }
+
+                            // Load history first for dedup check
+                            let mut history = load_history(&app_handle);
+
+                            // Dedup: check ignore flag AND store content
+                            if !should_ignore
+                                && history
+                                    .first()
+                                    .map(|i| i.content != content)
+                                    .unwrap_or(true)
                             {
+                                // Load, Append, Save
+                                // The history is already loaded above, no need to load again here.
+
                                 let new_item = ClipItem {
                                     id: Uuid::new_v4().to_string(),
                                     content: content.clone(),
                                     timestamp: Utc::now().timestamp_millis(),
+                                    pinned: false,
                                 };
 
-                                // Insert at top
+                                // Insert at top (but after pinned items? Or strictly chronological?
+                                // Let's keep chronological for now, frontend can sort)
                                 history.insert(0, new_item);
 
-                                // Truncate to 50
+                                // Truncate to 50 (but don't delete pinned items?)
+                                // Simplification: Just keep 50 total for now to avoid complexity or unbounded growth
                                 if history.len() > 50 {
-                                    history.truncate(50);
+                                    // Try to remove unpinned items from the end first
+                                    if let Some(idx) = history.iter().rposition(|i| !i.pinned) {
+                                        history.remove(idx);
+                                    } else {
+                                        // All are pinned? Hard limit
+                                        history.truncate(50);
+                                    }
                                 }
 
                                 save_history(&app_handle, &history);
@@ -149,13 +219,26 @@ fn main() {
                         ..
                     } = event
                     {
+                        let now = Utc::now().timestamp_millis();
+                        let last = LAST_CLICK.load(Ordering::Relaxed);
+                        if now - last < 300 {
+                            println!("Ignoring double click");
+                            return;
+                        }
+                        LAST_CLICK.store(now, Ordering::Relaxed);
+
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
-                            if window.is_visible().unwrap_or(false) {
+                            let is_visible = window.is_visible().unwrap_or(false);
+                            println!("Tray Click! Window visible? {}", is_visible);
+
+                            if is_visible {
                                 let _ = window.hide();
+                                println!("Hiding window...");
                             } else {
                                 let _ = window.show();
                                 let _ = window.set_focus();
+                                println!("Showing window...");
                             }
                         }
                     }
@@ -163,16 +246,16 @@ fn main() {
                 .build(app)?;
 
             // 4. Window Behavior (Hide on Blur)
-            if let Some(window) = app.get_webview_window("main") {
-                let w_clone = window.clone();
-                window.on_window_event(move |event| {
-                    if let tauri::WindowEvent::Focused(focused) = event {
-                        if !focused {
-                            let _ = w_clone.hide();
-                        }
-                    }
-                });
-            }
+            // if let Some(window) = app.get_webview_window("main") {
+            //     let w_clone = window.clone();
+            //     window.on_window_event(move |event| {
+            //         if let tauri::WindowEvent::Focused(focused) = event {
+            //             if !focused {
+            //                 let _ = w_clone.hide();
+            //             }
+            //         }
+            //     });
+            // }
 
             Ok(())
         })
@@ -180,7 +263,9 @@ fn main() {
             get_current_clip,
             get_history,
             delete_clip,
-            copy_to_clip
+            copy_to_clip,
+            toggle_pin_clip,
+            clear_history
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

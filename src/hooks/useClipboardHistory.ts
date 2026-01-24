@@ -6,6 +6,7 @@ export interface ClipItem {
   id: string;
   content: string;
   timestamp: number;
+  pinned: boolean;
 }
 
 export function useClipboardHistory() {
@@ -28,7 +29,7 @@ export function useClipboardHistory() {
   }, []);
 
   const deleteClip = async (id: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation(); // Prevent triggering parent click events
+    if (e) e.stopPropagation();
     try {
         const newHistory = await invoke<ClipItem[]>("delete_clip", { id });
         setHistory(newHistory);
@@ -37,6 +38,25 @@ export function useClipboardHistory() {
     }
   };
 
+  const togglePin = async (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+        const newHistory = await invoke<ClipItem[]>("toggle_pin_clip", { id });
+        setHistory(newHistory);
+    } catch (err) {
+        console.error("Failed to toggle pin:", err);
+    }
+  };
+
+  const clearAll = async () => {
+      try {
+          const newHistory = await invoke<ClipItem[]>("clear_history");
+          setHistory(newHistory);
+      } catch (err) {
+          console.error("Failed to clear history:", err);
+      }
+  };
+    
   const copyToClipboard = async (content: string) => {
       try {
           await invoke("copy_to_clip", { content });
@@ -45,5 +65,5 @@ export function useClipboardHistory() {
       }
   };
 
-  return { history, deleteClip, copyToClipboard };
+  return { history, deleteClip, togglePin, clearAll, copyToClipboard };
 }
