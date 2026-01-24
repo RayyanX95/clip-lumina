@@ -1,105 +1,78 @@
-import { invoke } from "@tauri-apps/api/core";
-import { useState } from "react";
+import { useClipboardHistory } from "./hooks/useClipboardHistory";
 
 function App() {
-  const [text, setText] = useState("");
-  const [isHovering, setIsHovering] = useState(false);
-
-  const readClip = async () => {
-    try {
-      const clip = await invoke<string>("get_current_clip");
-      setText(clip);
-    } catch (err) {
-      console.error("Failed to read clipboard:", err);
-    }
-  };
+  const { history } = useClipboardHistory();
 
   return (
-    <div className="min-h-screen bg-brand-bg bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-bg via-brand-bg-deep to-brand-bg flex items-center justify-center p-6 text-brand-text font-sans selection:bg-brand-primary/30">
-      {/* Decorative Orbs */}
-      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-primary-strong/10 blur-[120px]" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[35%] h-[35%] rounded-full bg-brand-secondary-strong/10 blur-[100px]" />
+    <div className="min-h-screen bg-brand-bg bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-bg via-brand-bg-deep to-brand-bg flex flex-col p-4 text-brand-text font-sans h-screen overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-[-20%] right-[-20%] w-[50%] h-[50%] rounded-full bg-brand-primary-strong/5 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-secondary-strong/5 blur-[80px] pointer-events-none" />
 
-      <main className="relative w-full max-w-lg">
-        <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
-          {/* Header */}
-          <header className="mb-10 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-primary-strong to-brand-accent mb-6 shadow-lg shadow-brand-primary-strong/20">
-              <svg 
-                className="w-8 h-8 text-white" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white to-brand-text-muted">
-              ClipLumina
-            </h1>
-            <p className="text-brand-text-muted text-sm font-medium uppercase tracking-[0.2em]">
-              Next-Gen Clipboard Manager
-            </p>
-          </header>
-
-          {/* Action Area */}
-          <div className="space-y-6">
-            <button 
-              onClick={readClip}
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
-              className="group relative w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-primary-strong to-brand-secondary-strong hover:from-brand-primary hover:to-brand-secondary text-white font-bold shadow-xl shadow-brand-primary-strong/40 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
-            >
-              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
-              <span className="relative flex items-center justify-center gap-2">
-                Check Clipboard
-                <svg className={`w-5 h-5 transition-transform duration-300 ${isHovering ? 'translate-x-1' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      {/* Header */}
+      <header className="flex-none mb-4 px-2 pt-2">
+        <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-primary-strong to-brand-accent flex items-center justify-center shadow-lg shadow-brand-primary/20">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </span>
-            </button>
+              ClipLumina
+            </h1>
+            <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/5 border border-white/5 text-brand-text-muted">
+              {history.length} items
+            </span>
+        </div>
+      </header>
 
-            {/* Result Container */}
-            <div className={`transition-all duration-500 ease-out ${text ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none h-0 p-0 overflow-hidden'}`}>
-              <div className="bg-black/20 border border-white/5 rounded-2xl p-5 group">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-brand-primary hover:text-brand-primary-hover uppercase tracking-widest">Current Content</span>
-                  <div className="h-1.5 w-1.5 rounded-full bg-brand-primary animate-pulse" />
-                </div>
-                <div className="bg-brand-bg-deep/50 rounded-xl p-4 border border-white/5 max-h-48 overflow-y-auto custom-scrollbar">
-                  <p className="text-brand-text-muted/90 font-mono text-sm break-all leading-relaxed">
-                    {text}
+      {/* History List */}
+      <main className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3 pb-4">
+        {history.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-brand-text-dim text-center opacity-60">
+             <svg className="w-12 h-12 mb-3 text-brand-text-muted/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+             </svg>
+             <p className="text-sm">Clipboard is empty</p>
+             <p className="text-xs mt-1">Copy something to see it here</p>
+          </div>
+        ) : (
+          history.map((item, index) => (
+            <div 
+              key={index}
+              className="group relative bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-primary/30 rounded-xl p-3 transition-all duration-200 cursor-default"
+            >
+              <div className="flex items-start gap-3">
+                <div className="mt-1 w-1 h-1 rounded-full bg-brand-primary/50 group-hover:bg-brand-primary transition-colors" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-brand-text-muted group-hover:text-white font-medium truncate mb-1 transition-colors">
+                     {/* Heuristic for title: First line or first 40 chars */}
+                     {item.split('\n')[0].substring(0, 40) || "Untitled Clip"}
                   </p>
+                  <pre className="text-xs text-brand-text-dim font-mono bg-black/20 rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border border-white/5">
+                    {item.trim()}
+                  </pre>
+                </div>
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+                   {/* Actions (Future: Copy, Delete) */}
                 </div>
               </div>
+              
+              {/* Timestamp or index (Optional) */}
+               <span className="absolute top-2 right-2 text-[10px] text-brand-text-dim/20 font-mono">
+                 #{history.length - index}
+               </span>
             </div>
-          </div>
-        </div>
-
-        {/* Footer info */}
-        <p className="mt-8 text-center text-brand-text-dim text-xs font-medium">
-          SECURE & ENCRYPTED CLIPBOARD ACCESS
-        </p>
+          ))
+        )}
       </main>
 
+       {/* Scanlines / Retro Effect Override (from CSS if any) or simple footer */}
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes shimmer {
-          100% { transform: translateX(100%); }
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
       `}} />
     </div>
   );

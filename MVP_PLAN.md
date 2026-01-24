@@ -16,11 +16,11 @@ This document outlines the step-by-step plan to build the Minimum Viable Product
     -   hide the dock icon (optional for "pure" tray apps, but good for MVP).
 
 ## Phase 2: Frontend Foundation (React + Tailwind)
--   [ ] **Step 2.1: State Management for History**
+-   [x] **Step 2.1: State Management for History**
     -   Create a `useClipboardHistory` hook.
     -   Listen for the `clipboard://change` event from Tauri.
     -   Maintain a list of recent clips (e.g., last 50 items).
--   [ ] **Step 2.2: History List UI**
+-   [x] **Step 2.2: History List UI**
     -   Create a `HistoryItem` component.
     -   Design the list view with "Smart Truncation" (CSS `text-overflow: ellipsis`).
     -   Apply the "Premium" aesthetic (glassmorphism, nice typography).
