@@ -225,7 +225,7 @@ fn main() {
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show_i, &clear_i, &quit_i])?;
 
-            let tray_icon = tauri::image::Image::from_path("icons/tray-icon.svg")
+            let tray_icon = tauri::image::Image::from_path("icons/tray-icon.png")
                 .unwrap_or_else(|_| app.default_window_icon().unwrap().clone());
 
             let _tray = TrayIconBuilder::new()
