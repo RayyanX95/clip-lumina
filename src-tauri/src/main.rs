@@ -1,19 +1,16 @@
+mod commands;
+mod history;
+mod models;
+mod state;
+
 use arboard::Clipboard;
 use chrono::Utc;
-use serde::{Deserialize, Serialize};
-use serde_json::json;
-
-use std::sync::atomic::{AtomicI64, Ordering};
-use std::sync::Mutex;
-static LAST_CLICK: AtomicI64 = AtomicI64::new(0);
-static IGNORE_NEXT_CLIP: Mutex<Option<String>> = Mutex::new(None);
-
+use std::sync::atomic::Ordering;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
-    ActivationPolicy, AppHandle, Emitter, Manager, Runtime,
+    ActivationPolicy, Emitter, Manager,
 };
-use tauri_plugin_store::StoreExt;
 use uuid::Uuid;
 
 use base64::engine::general_purpose::STANDARD as BASE64;
@@ -22,108 +19,10 @@ use image::ColorType;
 use image::ImageEncoder;
 use std::io::Cursor;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct ClipItem {
-    id: String,
-    content: String,
-    timestamp: i64,
-    #[serde(default)]
-    pinned: bool,
-    #[serde(default)]
-    kind: String, // "text" or "image"
-}
-
-const STORE_PATH: &str = "history.json";
-
-fn load_history<R: Runtime>(app: &AppHandle<R>) -> Vec<ClipItem> {
-    let store = app.store(STORE_PATH).expect("failed to get store");
-    if let Some(val) = store.get("history") {
-        serde_json::from_value(val).unwrap_or_default()
-    } else {
-        Vec::new()
-    }
-}
-
-fn save_history<R: Runtime>(app: &AppHandle<R>, history: &Vec<ClipItem>) {
-    let store = app.store(STORE_PATH).expect("failed to get store");
-    store.set("history", json!(history));
-    let _ = store.save(); // Persist to disk
-}
-
-#[tauri::command]
-fn get_history(app: AppHandle) -> Vec<ClipItem> {
-    load_history(&app)
-}
-
-#[tauri::command]
-fn delete_clip(app: AppHandle, id: String) -> Vec<ClipItem> {
-    let mut history = load_history(&app);
-    history.retain(|item| item.id != id);
-    save_history(&app, &history);
-    let _ = app.emit("clipboard://update", &history);
-    history
-}
-
-#[tauri::command]
-fn toggle_pin_clip(app: AppHandle, id: String) -> Vec<ClipItem> {
-    let mut history = load_history(&app);
-    if let Some(item) = history.iter_mut().find(|i| i.id == id) {
-        item.pinned = !item.pinned;
-    }
-    save_history(&app, &history);
-    let _ = app.emit("clipboard://update", &history);
-    history
-}
-
-#[tauri::command]
-fn clear_history(app: AppHandle) -> Vec<ClipItem> {
-    let mut history = load_history(&app);
-    // Keep only pinned items
-    history.retain(|item| item.pinned);
-    save_history(&app, &history);
-    let _ = app.emit("clipboard://update", &history);
-    history
-}
-
-#[tauri::command]
-fn copy_to_clip(content: String, kind: String) -> Result<(), String> {
-    // Set ignore flag BEFORE writing to clipboard
-    if let Ok(mut ignore) = IGNORE_NEXT_CLIP.lock() {
-        *ignore = Some(content.clone());
-    }
-
-    let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
-
-    if kind == "image" || content.starts_with("data:image") {
-        let b64_part = if content.contains(",") {
-            content.split(',').nth(1).unwrap_or("")
-        } else {
-            &content
-        };
-
-        let bytes = BASE64.decode(b64_part).map_err(|e| e.to_string())?;
-        let img = image::load_from_memory(&bytes).map_err(|e| e.to_string())?;
-        let rgba = img.to_rgba8();
-        let (width, height) = rgba.dimensions();
-
-        let image_data = arboard::ImageData {
-            width: width as usize,
-            height: height as usize,
-            bytes: std::borrow::Cow::Borrowed(rgba.as_raw()),
-        };
-
-        clipboard.set_image(image_data).map_err(|e| e.to_string())
-    } else {
-        clipboard.set_text(content).map_err(|e| e.to_string())
-    }
-}
-
-// Kept for manual "Read Now" or debugging
-#[tauri::command]
-fn get_current_clip() -> String {
-    let mut clipboard = Clipboard::new().unwrap();
-    clipboard.get_text().unwrap_or_else(|_| "".to_string())
-}
+use crate::commands::*;
+use crate::history::{load_history, save_history};
+use crate::models::ClipItem;
+use crate::state::{IGNORE_NEXT_CLIP, LAST_CLICK};
 
 fn main() {
     tauri::Builder::default()
@@ -131,11 +30,10 @@ fn main() {
         .setup(|app| {
             let app_handle = app.handle().clone();
 
-            // 1. Hide Dock Icon (macOS)
             #[cfg(target_os = "macos")]
             app.set_activation_policy(ActivationPolicy::Accessory);
 
-            // 2. Setup Background Clipboard Listener
+            // Setup Background Clipboard Listener
             std::thread::spawn(move || {
                 let mut clipboard = match Clipboard::new() {
                     Ok(c) => c,
@@ -153,7 +51,6 @@ fn main() {
                     let mut new_content = String::new();
                     let mut kind = "text";
 
-                    // 1. Try reading text
                     if let Ok(text) = clipboard.get_text() {
                         if !text.is_empty() {
                             new_content = text;
@@ -161,20 +58,16 @@ fn main() {
                         }
                     }
 
-                    // 2. If no text, try reading image
                     if new_content.is_empty() {
                         if let Ok(img) = clipboard.get_image() {
-                            // Convert to PNG/Base64
                             let mut buffer = Vec::new();
                             let width = img.width as u32;
                             let height = img.height as u32;
 
-                            // Simple heuristic: Ignore tiny images (might be icons or junk)
                             if width > 0 && height > 0 {
                                 let mut cursor = Cursor::new(&mut buffer);
                                 let encoder = image::codecs::png::PngEncoder::new(&mut cursor);
 
-                                // arboard returns raw bytes (usually RGBA8), need to wrap them
                                 if let Ok(_) = encoder.write_image(
                                     &img.bytes,
                                     width,
@@ -195,8 +88,6 @@ fn main() {
                         let mut should_ignore = false;
                         if let Ok(mut ignore_guard) = IGNORE_NEXT_CLIP.lock() {
                             if let Some(ignored) = ignore_guard.as_ref() {
-                                // For images (base64 potentially huge), full string match is expensive but correct
-                                // For MVP, direct equality is robust enough.
                                 if *ignored == new_content {
                                     should_ignore = true;
                                     *ignore_guard = None;
@@ -240,7 +131,7 @@ fn main() {
                 }
             });
 
-            // 3. Setup System Tray
+            // Setup System Tray
             let show_i = MenuItem::with_id(app, "show", "Show ClipLumina", true, None::<&str>)?;
             let clear_i = MenuItem::with_id(app, "clear", "Clear History", true, None::<&str>)?;
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -254,27 +145,23 @@ fn main() {
                 .icon_as_template(true)
                 .menu(&menu)
                 .show_menu_on_left_click(false)
-                .on_menu_event(|app, event| {
-                    match event.id().as_ref() {
-                        "show" => {
-                            if let Some(window) = app.get_webview_window("main") {
-                                let _ = window.show();
-                                let _ = window.set_focus();
-                            }
+                .on_menu_event(|app, event| match event.id().as_ref() {
+                    "show" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
                         }
-                        "clear" => {
-                            // Replicating clear logic here since we can't easily call the command function
-                            // Note: ideally refactor to shared helper, but this is short.
-                            let mut history = load_history(app);
-                            history.retain(|item| item.pinned);
-                            save_history(app, &history);
-                            let _ = app.emit("clipboard://update", &history);
-                        }
-                        "quit" => {
-                            app.exit(0);
-                        }
-                        _ => {}
                     }
+                    "clear" => {
+                        let mut history = load_history(app);
+                        history.retain(|item| item.pinned);
+                        save_history(app, &history);
+                        let _ = app.emit("clipboard://update", &history);
+                    }
+                    "quit" => {
+                        app.exit(0);
+                    }
+                    _ => {}
                 })
                 .on_tray_icon_event(|tray, event| {
                     if let TrayIconEvent::Click {
@@ -282,7 +169,6 @@ fn main() {
                         ..
                     } = event
                     {
-                        // ... existing click toggle logic ...
                         let now = Utc::now().timestamp_millis();
                         let last = LAST_CLICK.load(Ordering::Relaxed);
                         if now - last < 300 {
@@ -305,7 +191,7 @@ fn main() {
                 })
                 .build(app)?;
 
-            // 4. Window Behavior (Hide on Blur)
+            // Window Behavior (Hide on Blur)
             if let Some(window) = app.get_webview_window("main") {
                 let w_clone = window.clone();
                 window.on_window_event(move |event| {
@@ -320,12 +206,12 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            get_current_clip,
             get_history,
             delete_clip,
             copy_to_clip,
             toggle_pin_clip,
-            clear_history
+            clear_history,
+            get_current_clip
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
