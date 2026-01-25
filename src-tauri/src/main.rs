@@ -86,7 +86,7 @@ fn clear_history(app: AppHandle) -> Vec<ClipItem> {
 }
 
 #[tauri::command]
-fn copy_to_clip(content: String) -> Result<(), String> {
+fn copy_to_clip(content: String, kind: String) -> Result<(), String> {
     // Set ignore flag BEFORE writing to clipboard
     if let Ok(mut ignore) = IGNORE_NEXT_CLIP.lock() {
         println!("Setting ignore for: '{}'", content.replace("\n", "\\n"));
@@ -94,7 +94,29 @@ fn copy_to_clip(content: String) -> Result<(), String> {
     }
 
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
-    clipboard.set_text(content).map_err(|e| e.to_string())
+
+    if kind == "image" || content.starts_with("data:image") {
+        let b64_part = if content.contains(",") {
+            content.split(',').nth(1).unwrap_or("")
+        } else {
+            &content
+        };
+
+        let bytes = BASE64.decode(b64_part).map_err(|e| e.to_string())?;
+        let img = image::load_from_memory(&bytes).map_err(|e| e.to_string())?;
+        let rgba = img.to_rgba8();
+        let (width, height) = rgba.dimensions();
+
+        let image_data = arboard::ImageData {
+            width: width as usize,
+            height: height as usize,
+            bytes: std::borrow::Cow::Borrowed(rgba.as_raw()),
+        };
+
+        clipboard.set_image(image_data).map_err(|e| e.to_string())
+    } else {
+        clipboard.set_text(content).map_err(|e| e.to_string())
+    }
 }
 
 // Kept for manual "Read Now" or debugging

@@ -5,16 +5,17 @@ import { EmptyState } from "./components/features/EmptyState";
 import { ClipItemCard } from "./components/features/ClipItemCard";
 
 function App() {
-  const { history, deleteClip, togglePin, clearAll, copyToClipboard } = useClipboardHistory();
+  const { history, deleteClip, togglePin, clearAll, copyToClipboard } =
+    useClipboardHistory();
 
-  const handleCopy = async (content: string) => {
-      await copyToClipboard(content);
-      await getCurrentWindow().hide();
+  const handleCopy = async (content: string, kind?: string) => {
+    await copyToClipboard(content, kind);
+    await getCurrentWindow().hide();
   };
 
   const sortedHistory = [...history].sort((a, b) => {
-      if (a.pinned === b.pinned) return 0;
-      return a.pinned ? -1 : 1;
+    if (a.pinned === b.pinned) return 0;
+    return a.pinned ? -1 : 1;
   });
 
   return (
@@ -31,24 +32,28 @@ function App() {
           <EmptyState />
         ) : (
           sortedHistory.map((item) => (
-            <ClipItemCard 
-                key={item.id} 
-                item={item} 
-                onCopy={handleCopy} 
-                onDelete={deleteClip} 
-                onPin={togglePin} 
+            <ClipItemCard
+              key={item.id}
+              item={item}
+              onCopy={handleCopy}
+              onDelete={deleteClip}
+              onPin={togglePin}
             />
           ))
         )}
       </main>
 
-       {/* Scanlines / Retro Effect Override (from CSS if any) or simple footer */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      {/* Scanlines / Retro Effect Override (from CSS if any) or simple footer */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 }
