@@ -1,8 +1,8 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { useClipboardHistory } from "./hooks/useClipboardHistory";
-import { Header } from "./components/layout/Header";
-import { EmptyState } from "./components/features/EmptyState";
-import { ClipItemCard } from "./components/features/ClipItemCard";
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { useClipboardHistory } from './hooks/useClipboardHistory';
+import { Header } from './components/layout/Header';
+import { EmptyState } from './components/features/EmptyState';
+import { ClipItemCard } from './components/features/ClipItemCard';
 
 function App() {
   const { history, deleteClip, togglePin, clearAll, copyToClipboard } =

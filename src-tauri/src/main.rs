@@ -89,7 +89,6 @@ fn clear_history(app: AppHandle) -> Vec<ClipItem> {
 fn copy_to_clip(content: String, kind: String) -> Result<(), String> {
     // Set ignore flag BEFORE writing to clipboard
     if let Ok(mut ignore) = IGNORE_NEXT_CLIP.lock() {
-        println!("Setting ignore for: '{}'", content.replace("\n", "\\n"));
         *ignore = Some(content.clone());
     }
 

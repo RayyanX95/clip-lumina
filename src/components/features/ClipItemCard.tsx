@@ -1,7 +1,8 @@
-import { ClipItem } from "../../hooks/useClipboardHistory";
-import { Icons } from "../icons/Icons";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useState, useEffect } from 'react';
+import { ClipItem } from '../../hooks/useClipboardHistory';
+import { Icons } from '../icons/Icons';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface ClipItemProps {
   item: ClipItem;
@@ -11,42 +12,57 @@ interface ClipItemProps {
 }
 
 export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (copied) {
+      const timer = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copied]);
+
+  const handleCopy = () => {
+    onCopy(item.content, item.kind || 'text');
+    setCopied(true);
+  };
   const isImage =
-    item.kind === "image" || item.content.startsWith("data:image");
+    item.kind === 'image' || item.content.startsWith('data:image');
   const isLink =
     !isImage &&
-    (item.content.startsWith("http://") || item.content.startsWith("https://"));
+    (item.content.startsWith('http://') || item.content.startsWith('https://'));
   // Simple heuristic for code: explicit multiline with typical code chars, or just assume "Code" if it looks structured?
   // Let's rely on the previous heuristic for now but make it smarter?
   // Actually, syntax highlighter works on anything. Let's strictly detect "Code Snippet" via length + chars.
   const isCode =
     !isImage &&
     !isLink &&
-    (item.content.includes("function") ||
-      item.content.includes("const") ||
-      item.content.includes("import") ||
-      item.content.includes("class ") ||
-      item.content.includes("=>") ||
-      (item.content.includes("{") && item.content.includes("}")));
+    (item.content.includes('function') ||
+      item.content.includes('const') ||
+      item.content.includes('import') ||
+      item.content.includes('class ') ||
+      item.content.includes('=>') ||
+      (item.content.includes('{') && item.content.includes('}')));
 
-  const type = isImage ? "IMAGE" : isLink ? "LINK" : isCode ? "CODE" : "TEXT";
+  const type = isImage ? 'IMAGE' : isLink ? 'LINK' : isCode ? 'CODE' : 'TEXT';
 
   // Extract domain for links
   const getDomain = (url: string) => {
     try {
       return new URL(url).hostname;
     } catch {
-      return "Link";
+      return 'Link';
     }
   };
 
   return (
     <div
-      onClick={() => onCopy(item.content, item.kind || "text")}
+      onClick={handleCopy}
       className={`group relative border rounded-xl p-3 transition-all duration-200 cursor-pointer ${
-        item.pinned
-          ? "bg-brand-primary-strong/10 border-brand-primary/20 shadow-[0_0_15px_-5px_var(--color-primary)]"
-          : "bg-white/5 hover:bg-white/10 border-white/5 hover:border-brand-primary/30"
+        copied
+          ? 'bg-green-500/10 border-green-500/30 shadow-[0_0_15px_-5px_rgba(34,197,94,0.4)]'
+          : item.pinned
+            ? 'bg-brand-primary-strong/10 border-brand-primary/20 shadow-[0_0_15px_-5px_var(--color-primary)]'
+            : 'bg-white/5 hover:bg-white/10 border-white/5 hover:border-brand-primary/30'
       }`}
       title="Click to copy"
     >
@@ -54,26 +70,33 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
         <div
           className={`mt-1 w-1 h-1 rounded-full transition-colors ${
             item.pinned
-              ? "bg-brand-accent shadow-[0_0_8px_var(--color-accent)] w-1.5 h-1.5"
-              : "bg-brand-primary/50 group-hover:bg-brand-primary"
+              ? 'bg-brand-accent shadow-[0_0_8px_var(--color-accent)] w-1.5 h-1.5'
+              : 'bg-brand-primary/50 group-hover:bg-brand-primary'
           }`}
         />
 
         <div className="flex-1 min-w-0 pr-8">
           <div className="flex items-center justify-between mb-1">
             <span
-              className={`text-[10px] font-bold uppercase tracking-wider ${
-                item.pinned
-                  ? "text-brand-accent"
-                  : "text-brand-text-dim group-hover:text-brand-text-muted"
+              className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all duration-300 transform ${
+                copied
+                  ? 'text-green-400 scale-110'
+                  : item.pinned
+                    ? 'text-brand-accent'
+                    : 'text-brand-text-dim group-hover:text-brand-text-muted'
               }`}
             >
-              {type}
+              <div
+                className={`transition-all duration-300 ${copied ? 'opacity-100 scale-100' : 'opacity-0 scale-0 w-0'}`}
+              >
+                <Icons.Check className="w-3 h-3" />
+              </div>
+              <span>{copied ? 'Copied' : type}</span>
             </span>
             <span className="text-[10px] text-brand-text-dim/50 font-mono">
               {new Date(item.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
+                hour: '2-digit',
+                minute: '2-digit',
               })}
             </span>
           </div>
@@ -94,7 +117,7 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
                   alt="Favicon"
                   className="w-5 h-5"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
+                    (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               </div>
@@ -119,13 +142,13 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
                 style={vscDarkPlus}
                 customStyle={{
                   margin: 0,
-                  padding: "0.75rem",
-                  background: "rgba(0,0,0,0.3)",
+                  padding: '0.75rem',
+                  background: 'rgba(0,0,0,0.3)',
                 }}
                 wrapLongLines={false}
               >
                 {item.content.length > 300
-                  ? item.content.substring(0, 300) + "\n..."
+                  ? item.content.substring(0, 300) + '\n...'
                   : item.content}
               </SyntaxHighlighter>
             </div>
@@ -133,8 +156,8 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
             <pre
               className={`text-xs font-mono rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border select-none ${
                 item.pinned
-                  ? "bg-black/30 text-white border-brand-primary/10"
-                  : "bg-black/20 text-brand-text border-white/5 group-hover:border-white/10"
+                  ? 'bg-black/30 text-white border-brand-primary/10'
+                  : 'bg-black/20 text-brand-text border-white/5 group-hover:border-white/10'
               }`}
             >
               {item.content.trim()}
@@ -148,14 +171,14 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
             onClick={(e) => onPin(item.id, e)}
             className={`p-1.5 rounded-md transition-colors cursor-pointer ${
               item.pinned
-                ? "text-brand-accent bg-brand-accent/10 hover:bg-brand-accent/20"
-                : "text-brand-text-dim hover:text-brand-accent hover:bg-brand-accent/5"
+                ? 'text-brand-accent bg-brand-accent/10 hover:bg-brand-accent/20'
+                : 'text-brand-text-dim hover:text-brand-accent hover:bg-brand-accent/5'
             }`}
-            title={item.pinned ? "Unpin" : "Pin"}
+            title={item.pinned ? 'Unpin' : 'Pin'}
           >
             <Icons.Pin
               className="w-3.5 h-3.5"
-              fill={item.pinned ? "currentColor" : "none"}
+              fill={item.pinned ? 'currentColor' : 'none'}
             />
           </button>
           <button
