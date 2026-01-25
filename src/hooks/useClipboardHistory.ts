@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { listen } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/core";
+import { useState, useEffect } from 'react';
+import { listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/core';
 
 export interface ClipItem {
   id: string;
@@ -15,13 +15,13 @@ export function useClipboardHistory() {
 
   useEffect(() => {
     // 1. Fetch persistent history
-    invoke<ClipItem[]>("get_history")
+    invoke<ClipItem[]>('get_history')
       .then((items) => setHistory(items))
-      .catch((err) => console.error("Failed to load history:", err));
+      .catch((err) => console.error('Failed to load history:', err));
 
     // 2. Listen for background updates (full list sync)
     const unlistenPromise = listen<ClipItem[]>(
-      "clipboard://update",
+      'clipboard://update',
       (event) => {
         setHistory(event.payload);
       },
@@ -35,37 +35,37 @@ export function useClipboardHistory() {
   const deleteClip = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
-      const newHistory = await invoke<ClipItem[]>("delete_clip", { id });
+      const newHistory = await invoke<ClipItem[]>('delete_clip', { id });
       setHistory(newHistory);
     } catch (err) {
-      console.error("Failed to delete clip:", err);
+      console.error('Failed to delete clip:', err);
     }
   };
 
   const togglePin = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
-      const newHistory = await invoke<ClipItem[]>("toggle_pin_clip", { id });
+      const newHistory = await invoke<ClipItem[]>('toggle_pin_clip', { id });
       setHistory(newHistory);
     } catch (err) {
-      console.error("Failed to toggle pin:", err);
+      console.error('Failed to toggle pin:', err);
     }
   };
 
   const clearAll = async () => {
     try {
-      const newHistory = await invoke<ClipItem[]>("clear_history");
+      const newHistory = await invoke<ClipItem[]>('clear_history');
       setHistory(newHistory);
     } catch (err) {
-      console.error("Failed to clear history:", err);
+      console.error('Failed to clear history:', err);
     }
   };
 
-  const copyToClipboard = async (content: string, kind: string = "text") => {
+  const copyToClipboard = async (content: string, kind: string = 'text') => {
     try {
-      await invoke("copy_to_clip", { content, kind });
+      await invoke('copy_to_clip', { content, kind });
     } catch (err) {
-      console.error("Failed to copy:", err);
+      console.error('Failed to copy:', err);
     }
   };
 
