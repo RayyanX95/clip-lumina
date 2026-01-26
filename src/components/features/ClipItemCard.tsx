@@ -48,7 +48,10 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
     !isImage &&
     !isLink &&
     !isCode &&
-    /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(item.content.trim());
+    (/^(#([A-Fa-f0-9]{3,4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8}))$/i.test(
+      item.content.trim(),
+    ) ||
+      /^(rgba?|hsla?)\(.*\)$/i.test(item.content.trim()));
 
   const isFile = item.kind === 'file';
 
@@ -150,12 +153,7 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
               </div>
             </div>
           ) : isCode ? (
-            <div
-              className="text-xs rounded-lg overflow-hidden border border-white/5 select-none"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Stop propagation on code block click? No, we still want copy behavior. But selection might be tricky. */}
-              {/* Actually, let's keep click-to-copy behavior on the card itself. */}
+            <div className="text-xs rounded-lg overflow-hidden border border-white/5 select-none">
               <SyntaxHighlighter
                 language="javascript"
                 style={vscDarkPlus}
@@ -181,7 +179,7 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
                 <p className="text-sm font-mono text-brand-text truncate">
                   {item.content.trim().toUpperCase()}
                 </p>
-                <p className="text-[10px] text-brand-text-dim/60">Hex Color</p>
+                <p className="text-[10px] text-brand-text-dim/60">CSS Color</p>
               </div>
             </div>
           ) : isFile ? (
