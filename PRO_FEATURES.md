@@ -1,77 +1,76 @@
 # 🌟 ClipLumina Pro
 
-Unlock the full potential of your productivity with **ClipLumina Pro**. Designed for power users, developers, and creative professionals who need more than just a history list.
+Unlock the full potential of your productivity with **ClipLumina Pro**. We believe in fair pricing: pay once for the tools you use locally, and only subscribe later for advanced AI "brain" features once they are released.
 
 ---
 
-## 💎 Pro vs. Free
+## 💎 Choosing Your Tier
 
-| Feature                 | Free Tier |           Pro Tier           |
-| :---------------------- | :-------: | :--------------------------: |
-| **History Limit**       | 50 Items  |        **Unlimited**         |
-| **Search**              |   Basic   |   **Global Fuzzy Search**    |
-| **Cloud Sync**          |    ❌     |   **End-to-End Encrypted**   |
-| **AI Smart Actions**    |    ❌     | **Unlimited Rewrites/Fixes** |
-| **Collections**         |    ❌     |   **Smart Folders & Tags**   |
-| **OCR (Image to Text)** |    ❌     |    **Instant Extraction**    |
-| **Developer Tools**     |  Limited  |     **All Power Tools**      |
-
----
-
-## 🚀 Key Pro Features
-
-### 🧠 Lumina AI Core
-
-Go beyond copying. Use built-in AI to:
-
-- **Refactor Code**: Instantly fix bugs or change languages of copied snippets.
-- **Smart Summarize**: Get the gist of long copied articles without reading them.
-- **Grammar Polish**: Fix emails and messages before you paste.
-
-### 🔄 Seamless Cloud Sync
-
-Your clipboard, everywhere. Sync your Mac history with your **iPhone, iPad, and Android** devices using secure, end-to-end encryption.
-
-### 📂 Smart Collections
-
-Organize your clips into auto-categorized folders:
-
-- **Project Alpha**: Keep all links and snippets for your current project in one place.
-- **Color Palettes**: Automatically save color codes to a dedicated design folder.
-- **SSH Keys & Secrets**: Biometric-locked folders for sensitive data.
-
-### 📸 Image Intelligence (OCR)
-
-Copy a screenshot? ClipLumina Pro automatically extracts the text using on-device OCR, making image content searchable and copyable.
+| Feature                 | Free Tier | Pro (Lifetime) | Lumina AI (Future Add-on) |
+| :---------------------- | :-------: | :------------: | :-----------------------: |
+| **History Limit**       | 50 Items  | **Unlimited**  |       **Unlimited**       |
+| **Search**              |   Basic   |  **Advanced**  |       **Advanced**        |
+| **Smart Folders**       |    ❌     |       ✅       |            ✅             |
+| **OCR (Image to Text)** |    ❌     |       ✅       |            ✅             |
+| **Auto-Paste**          |    ❌     |       ✅       |            ✅             |
+| **AI Smart Actions**    |    ❌     |       ❌       |     **[Coming Soon]**     |
+| **AI Summarization**    |    ❌     |       ❌       |     **[Coming Soon]**     |
 
 ---
 
-## 💰 Subscription Plans (Concept)
+## 🚀 The Phased Model
 
-### **The Professional**
+### 🏢 1. ClipLumina Pro (Available Now/Soon)
 
-**$4.99 / Month**
-_Perfect for continuous updates and cloud-pwr productivity._
+**One-time payment. No subscriptions.**
+This tier focuses on the high-performance local features of ClipLumina. It does **not** include AI features, which allows for a lower, one-time price.
 
-### **The Lifetime Legend**
+- **Unlimited History**: Search back through months of work.
+- **Auto-Paste**: Paste clips instantly into previous apps.
+- **Local OCR**: Extract text from images using your Mac's processing power.
+- **Pinned Collections**: Organize your most-used clips into smart folders.
 
-**$49.00 One-time**
-_Pay once, own forever. All Pro features + All future updates._
+### 🧠 2. Lumina AI (Coming in Later Release)
+
+**Optional monthly add-on for Pro users.**
+When we launch the AI layer, you can choose to activate it to transform your clipboard content.
+
+- **AI Refactor**: Fix code bugs or rewrite emails with one click.
+- **Smart Summarize**: Get 3-bullet summaries of long copied texts instantly.
+- **Context Search**: Search your history using natural language.
+
+---
+
+## 💰 Pricing Structure
+
+### **ClipLumina Pro (Current Release Focus)**
+
+**$19.00 One-time**
+_Pay once, own the best local clipboard manager forever._
+
+### **Lumina AI Add-on (Future Roadmap)**
+
+**Subscription TBD**
+_Will be available as an optional subscription once the AI features are fully implemented._
 
 ---
 
 ## 🛠 Integration Roadmap
 
-- [ ] **Phase 1**: Local Pro License Verification.
-- [ ] **Phase 2**: Supabase-powered Cloud Sync.
-- [ ] **Phase 3**: Mobile App Beta (iOS/Android via Tauri 2.0).
+- [x] **Phase 1**: High-performance Rust Core & UI.
+- [ ] **Phase 2**: Local Pro License Verification (Lifetime license system).
+- [ ] **Phase 3**: Smart Folders & Advanced Search.
+- [ ] **Phase 4**: **[FUTURE]** Lumina AI & Cloud Sync Engine.
 
 ---
 
 ## 🔒 Privacy First
 
-Even with Pro, your data is yours. Cloud sync uses **private keys** generated on your device. We never have access to your clipboard content.
+Your clipboard is sensitive.
+
+1. **Local Features**: All current Pro features (OCR, Search) run entirely on your Mac. No data leaves your machine.
+2. **AI Features (Future)**: Data will only be sent to AI providers when you explicitly choose to use an AI action.
 
 ---
 
-_Stay ahead of the curve. Upgrade to ClipLumina Pro._
+_Stay ahead of the curve. Build your history today with ClipLumina Pro._
