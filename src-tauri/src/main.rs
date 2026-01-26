@@ -30,10 +30,11 @@ fn main() {
         .setup(|app| {
             let app_handle = app.handle().clone();
 
+            // Hide the application icon from the macOS Dock (runs as a background "Accessory" app)
             #[cfg(target_os = "macos")]
             app.set_activation_policy(ActivationPolicy::Accessory);
 
-            // Setup Background Clipboard Listener
+            // Spawn a background thread to continuously monitor the system clipboard
             std::thread::spawn(move || {
                 let mut clipboard = match Clipboard::new() {
                     Ok(c) => c,
@@ -46,11 +47,13 @@ fn main() {
                 let mut last_content = String::new();
 
                 loop {
+                    // Poll the clipboard every 300ms to detect changes
                     std::thread::sleep(std::time::Duration::from_millis(300));
 
                     let mut new_content = String::new();
                     let mut kind = "text";
 
+                    // Try to read text content first
                     if let Ok(text) = clipboard.get_text() {
                         if !text.is_empty() {
                             new_content = text;
@@ -58,6 +61,7 @@ fn main() {
                         }
                     }
 
+                    // If no text, try to read image data
                     if new_content.is_empty() {
                         if let Ok(img) = clipboard.get_image() {
                             let mut buffer = Vec::new();
@@ -68,6 +72,7 @@ fn main() {
                                 let mut cursor = Cursor::new(&mut buffer);
                                 let encoder = image::codecs::png::PngEncoder::new(&mut cursor);
 
+                                // Convert raw image bytes into a PNG-formatted base64 string for the webview
                                 if let Ok(_) = encoder.write_image(
                                     &img.bytes,
                                     width,
@@ -82,10 +87,12 @@ fn main() {
                         }
                     }
 
+                    // If there's new content and it's different from the last thing we saw
                     if !new_content.is_empty() && new_content != last_content {
                         last_content = new_content.clone();
 
                         let mut should_ignore = false;
+                        // Check if this content was just written BY our app (prevents infinite loop when we copy something)
                         if let Ok(mut ignore_guard) = IGNORE_NEXT_CLIP.lock() {
                             if let Some(ignored) = ignore_guard.as_ref() {
                                 if *ignored == new_content {
@@ -97,6 +104,7 @@ fn main() {
 
                         let mut history = load_history(&app_handle);
 
+                        // Only add to history if it's not explicitly ignored and not identical to the current top item
                         if !should_ignore
                             && history
                                 .first()
@@ -113,6 +121,7 @@ fn main() {
 
                             history.insert(0, new_item);
 
+                            // Limit history to 50 items, but preserve pinned items wherever they are
                             if history.len() > 50 {
                                 if let Some(idx) = history.iter().rposition(|i| !i.pinned) {
                                     history.remove(idx);
@@ -123,6 +132,7 @@ fn main() {
 
                             save_history(&app_handle, &history);
 
+                            // Notify the frontend to refresh its list
                             if let Err(e) = app_handle.emit("clipboard://update", &history) {
                                 eprintln!("Failed to emit clipboard update: {}", e);
                             }
@@ -131,7 +141,7 @@ fn main() {
                 }
             });
 
-            // Setup System Tray
+            // Configure the System Tray (Menu Bar icon)
             let show_i = MenuItem::with_id(app, "show", "Show ClipLumina", true, None::<&str>)?;
             let clear_i = MenuItem::with_id(app, "clear", "Clear History", true, None::<&str>)?;
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -171,6 +181,7 @@ fn main() {
                     {
                         let now = Utc::now().timestamp_millis();
                         let last = LAST_CLICK.load(Ordering::Relaxed);
+                        // Debounce: prevent multiple clicks from toggling the window too fast (300ms threshold)
                         if now - last < 300 {
                             return;
                         }
@@ -191,7 +202,7 @@ fn main() {
                 })
                 .build(app)?;
 
-            // Window Behavior (Hide on Blur)
+            // Auto-hide the main window whenever it loses focus (clicks outside the app)
             if let Some(window) = app.get_webview_window("main") {
                 let w_clone = window.clone();
                 window.on_window_event(move |event| {
