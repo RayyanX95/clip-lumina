@@ -43,7 +43,21 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
       item.content.includes('=>') ||
       (item.content.includes('{') && item.content.includes('}')));
 
-  const type = isImage ? 'IMAGE' : isLink ? 'LINK' : isCode ? 'CODE' : 'TEXT';
+  const isColor =
+    !isImage &&
+    !isLink &&
+    !isCode &&
+    /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(item.content.trim());
+
+  const type = isImage
+    ? 'IMAGE'
+    : isLink
+      ? 'LINK'
+      : isColor
+        ? 'COLOR'
+        : isCode
+          ? 'CODE'
+          : 'TEXT';
 
   // Extract domain for links
   const getDomain = (url: string) => {
@@ -151,6 +165,19 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
                   ? item.content.substring(0, 300) + '\n...'
                   : item.content}
               </SyntaxHighlighter>
+            </div>
+          ) : isColor ? (
+            <div className="flex items-center gap-3 p-2 rounded-lg bg-black/20 border border-white/5">
+              <div
+                className="w-10 h-10 rounded-md shadow-inner border border-white/10 flex-shrink-0"
+                style={{ backgroundColor: item.content.trim() }}
+              />
+              <div className="overflow-hidden">
+                <p className="text-sm font-mono text-brand-text truncate">
+                  {item.content.trim().toUpperCase()}
+                </p>
+                <p className="text-[10px] text-brand-text-dim/60">Hex Color</p>
+              </div>
             </div>
           ) : (
             <pre

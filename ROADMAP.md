@@ -15,7 +15,7 @@ _Focus: Core functionality and "Mac-first" feel._
 - [x] **Local Persistence**: History saved locally via `tauri-plugin-store`.
 - [x] **Visual Feedback**: "Copied!" indicators and smooth transitions.
 - [x] **Auto-Paste**: Simulated keystroke to paste content immediately upon selection.
-- [] **Hex Color Detection**: Detect and preview hex colors in history.
+- [x] **Hex Color Detection**: Detect and preview hex colors in history.
 
 ---
 
