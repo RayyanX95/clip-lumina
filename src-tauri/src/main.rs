@@ -18,11 +18,32 @@ use base64::Engine as _;
 use image::ColorType;
 use image::ImageEncoder;
 use std::io::Cursor;
+use urlencoding;
 
 use crate::commands::*;
 use crate::history::{load_history, save_history};
 use crate::models::ClipItem;
 use crate::state::{IGNORE_NEXT_CLIP, LAST_CLICK};
+
+/// Specialized macOS helper to retrieve the actual file path when a file is copied in Finder.
+/// Standard clipboard libraries often only catch the filename or a small icon.
+#[cfg(target_os = "macos")]
+fn get_macos_file_path() -> Option<String> {
+    use std::process::Command;
+    let output = Command::new("osascript")
+        .arg("-e")
+        .arg("get posix path of (the clipboard as «class furl»)")
+        .output()
+        .ok()?;
+
+    if output.status.success() {
+        let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if !path.is_empty() && std::path::Path::new(&path).exists() {
+            return Some(path);
+        }
+    }
+    None
+}
 
 fn main() {
     tauri::Builder::default()
@@ -53,15 +74,88 @@ fn main() {
                     let mut new_content = String::new();
                     let mut kind = "text";
 
-                    // Try to read text content first
-                    if let Ok(text) = clipboard.get_text() {
-                        if !text.is_empty() {
-                            new_content = text;
-                            kind = "text";
+                    let image_extensions = ["png", "jpg", "jpeg", "gif", "webp", "svg", "ico"];
+
+                    // 1. Try to get macOS file path first (for Files copied in Finder)
+                    #[cfg(target_os = "macos")]
+                    if let Some(path) = get_macos_file_path() {
+                        let extension = std::path::Path::new(&path)
+                            .extension()
+                            .and_then(|ext| ext.to_str())
+                            .unwrap_or("")
+                            .to_lowercase();
+
+                        if image_extensions.contains(&extension.as_str()) {
+                            new_content = path;
+                            kind = "file";
+                        } else {
+                            // Non-image file detected. Skip adding to history.
+                            if path != last_content {
+                                last_content = path;
+                            }
+                            continue;
                         }
                     }
 
-                    // If no text, try to read image data
+                    // 2. Try reading standard text content (if no image file path was found)
+                    if new_content.is_empty() {
+                        if let Ok(text) = clipboard.get_text() {
+                            if !text.is_empty() {
+                                let mut path_str = text.trim();
+                                if path_str.starts_with("file://") {
+                                    path_str = path_str.trim_start_matches("file://");
+                                }
+
+                                // Decode URL-encoded paths (e.g. My%20Image.png -> My Image.png)
+                                let decoded_path = urlencoding::decode(path_str)
+                                    .map(|s| s.into_owned())
+                                    .unwrap_or_else(|_| path_str.to_string());
+
+                                let path = std::path::Path::new(&decoded_path);
+                                if path.is_absolute() && path.exists() {
+                                    let extension = path
+                                        .extension()
+                                        .and_then(|ext| ext.to_str())
+                                        .unwrap_or("")
+                                        .to_lowercase();
+
+                                    if image_extensions.contains(&extension.as_str()) {
+                                        new_content = decoded_path;
+                                        kind = "file";
+                                    } else {
+                                        // Skip non-image file paths
+                                        if decoded_path != last_content {
+                                            last_content = decoded_path;
+                                        }
+                                        continue;
+                                    }
+                                } else {
+                                    // It's text. Check if it looks like a filename for a non-image file.
+                                    let text_trimmed = text.trim();
+                                    let lower_text = text_trimmed.to_lowercase();
+                                    let non_image_exts = [
+                                        ".pdf", ".zip", ".tar", ".gz", ".7z", ".rar", ".dmg",
+                                        ".pkg", ".exe", ".docx", ".xlsx", ".pptx",
+                                    ];
+
+                                    // Heuristic: if it's a single word and ends with a common non-image extension, skip it.
+                                    if non_image_exts.iter().any(|ext| lower_text.ends_with(ext))
+                                        && !text_trimmed.contains(' ')
+                                    {
+                                        if text != last_content {
+                                            last_content = text.to_string();
+                                        }
+                                        continue;
+                                    }
+
+                                    new_content = text;
+                                    kind = "text";
+                                }
+                            }
+                        }
+                    }
+
+                    // 3. Try reading raw image data (e.g. from browser or Preview)
                     if new_content.is_empty() {
                         if let Ok(img) = clipboard.get_image() {
                             let mut buffer = Vec::new();
@@ -72,7 +166,6 @@ fn main() {
                                 let mut cursor = Cursor::new(&mut buffer);
                                 let encoder = image::codecs::png::PngEncoder::new(&mut cursor);
 
-                                // Convert raw image bytes into a PNG-formatted base64 string for the webview
                                 if let Ok(_) = encoder.write_image(
                                     &img.bytes,
                                     width,

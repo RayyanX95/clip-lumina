@@ -3,6 +3,7 @@ import { ClipItem } from '../../hooks/useClipboardHistory';
 import { Icons } from '../icons/Icons';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { convertFileSrc } from '@tauri-apps/api/core';
 
 interface ClipItemProps {
   item: ClipItem;
@@ -49,6 +50,8 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
     !isCode &&
     /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(item.content.trim());
 
+  const isFile = item.kind === 'file';
+
   const type = isImage
     ? 'IMAGE'
     : isLink
@@ -57,7 +60,9 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
         ? 'COLOR'
         : isCode
           ? 'CODE'
-          : 'TEXT';
+          : isFile
+            ? 'FILE'
+            : 'TEXT';
 
   // Extract domain for links
   const getDomain = (url: string) => {
@@ -178,6 +183,22 @@ export function ClipItemCard({ item, onCopy, onDelete, onPin }: ClipItemProps) {
                 </p>
                 <p className="text-[10px] text-brand-text-dim/60">Hex Color</p>
               </div>
+            </div>
+          ) : isFile ? (
+            <div className="flex flex-col gap-1.5 w-full">
+              <div className="relative rounded-lg overflow-hidden border border-white/5 bg-black/20 w-fit max-w-full">
+                <img
+                  src={convertFileSrc(item.content)}
+                  alt={'Local Image Preview'}
+                  className="max-h-60 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+              <p className="text-[10px] text-brand-text-dim/50 truncate font-mono px-1">
+                {item.content}
+              </p>
             </div>
           ) : (
             <pre

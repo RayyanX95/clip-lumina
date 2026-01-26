@@ -16,6 +16,7 @@ _Focus: Core functionality and "Mac-first" feel._
 - [x] **Visual Feedback**: "Copied!" indicators and smooth transitions.
 - [x] **Auto-Paste**: Simulated keystroke to paste content immediately upon selection.
 - [x] **Hex Color Detection**: Detect and preview hex colors in history.
+- [x] **Local Image Previews**: High-resolution thumbnails for local image files.
 
 ---
 
