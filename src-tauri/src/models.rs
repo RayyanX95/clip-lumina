@@ -10,3 +10,9 @@ pub struct ClipItem {
     #[serde(default)]
     pub kind: String, // "text" or "image"
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HistoryWrapper {
+    pub version: u32,
+    pub items: Vec<ClipItem>,
+}
