@@ -4,22 +4,24 @@
 <style>
   body { 
     margin: 0; 
-    background: #05050a; 
+    background: #1b1712; /* deep warm beige-brown */
     width: 660px; 
     height: 400px; 
     overflow: hidden; 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
   }
+
   .bg {
     width: 660px;
     height: 400px;
-    background: #080812;
-    background: radial-gradient(circle at 180px 170px, #1a1a3a 0%, #080812 40%),
-                radial-gradient(circle at 480px 170px, #1a1a3a 0%, #080812 40%);
+    background: #1f1a14;
+    background:
+      radial-gradient(circle at 180px 170px, #3a3328 0%, #1f1a14 40%),
+      radial-gradient(circle at 480px 170px, #3a3328 0%, #1f1a14 40%);
     position: relative;
-    color: white;
+    color: #f5f1e8;
   }
-  
+
   /* Subtle Folder Design Target */
   .applications-target {
     position: absolute;
@@ -31,15 +33,20 @@
     justify-content: center;
     align-items: center;
   }
-  
+
   .folder-icon {
     width: 70px;
     height: 52px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: linear-gradient(
+      135deg,
+      rgba(245, 241, 232, 0.25) 0%,
+      rgba(245, 241, 232, 0.08) 100%
+    );
+    border: 1px solid rgba(245, 241, 232, 0.25);
     border-radius: 8px;
     position: relative;
   }
+
   .folder-icon::before {
     content: '';
     position: absolute;
@@ -47,9 +54,10 @@
     left: 4px;
     width: 24px;
     height: 8px;
-    background: rgba(255,255,255,0.08);
+    background: rgba(245, 241, 232, 0.25);
     border-radius: 4px 4px 0 0;
   }
+
   .folder-icon::after {
     content: 'A';
     position: absolute;
@@ -60,7 +68,7 @@
     align-items: center;
     font-size: 24px;
     font-weight: 900;
-    color: rgba(255,255,255,0.1);
+    color: rgba(120, 105, 85, 0.35);
   }
 
   /* Simple Arrow */
@@ -73,16 +81,18 @@
     display: flex;
     align-items: center;
   }
+
   .arrow-line {
     width: 30px;
     height: 2px;
-    background: rgba(255,255,255,0.2);
+    background: rgba(245, 241, 232, 0.45);
   }
+
   .arrow-head {
     width: 10px;
     height: 10px;
-    border-top: 2px solid rgba(255,255,255,0.2);
-    border-right: 2px solid rgba(255,255,255,0.2);
+    border-top: 2px solid rgba(245, 241, 232, 0.45);
+    border-right: 2px solid rgba(245, 241, 232, 0.45);
     transform: rotate(45deg);
     margin-left: -6px;
   }
@@ -90,23 +100,25 @@
   /* Clean Helper Text */
   .guide-text {
     position: absolute;
-    bottom: 40px;
+    bottom: 80px;
     width: 100%;
     text-align: center;
     font-size: 16px;
     font-weight: 300;
     letter-spacing: 4px;
-    opacity: 0.3;
+    opacity: 0.55;
     text-transform: uppercase;
+    color: #e6dfd2;
   }
 </style>
 </head>
+
 <body>
   <div class="bg" id="dmg-bg">
      <div class="applications-target">
         <div class="folder-icon"></div>
      </div>
-     
+
      <div class="arrow">
         <div class="arrow-line"></div>
         <div class="arrow-head"></div>

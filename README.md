@@ -67,3 +67,14 @@ Check out our [**Pro Features Vision**](./PRO_FEATURES.md) for a detailed look a
    ```bash
    git clone [https://github.com/your-username/clip-lumina.git](https://github.com/your-username/clip-lumina.git)
    ```
+
+## Convert DMG to AppImage
+
+```bash
+# ./dmg_to_appimage.sh
+npx capture-website-cli src-tauri/icons/dmg_bg_generator.html \
+  --output src-tauri/icons/dmg-background.png \
+  --width 660 \
+  --height 400 \
+  --scale-factor=1
+```
