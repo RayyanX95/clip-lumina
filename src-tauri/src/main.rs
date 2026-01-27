@@ -25,6 +25,9 @@ use crate::history::{load_history, save_history};
 use crate::models::ClipItem;
 use crate::state::{IGNORE_NEXT_CLIP, LAST_CLICK};
 
+const FREE_HISTORY_LIMIT: usize = 20;
+// const PRO_HISTORY_LIMIT: usize = 1000;
+
 /// Specialized macOS helper to retrieve the actual file path when a file is copied in Finder.
 /// Standard clipboard libraries often only catch the filename or a small icon.
 #[cfg(target_os = "macos")]
@@ -214,13 +217,17 @@ fn main() {
 
                             history.insert(0, new_item);
 
-                            // Limit history to 50 items, but preserve pinned items wherever they are
-                            if history.len() > 50 {
+                            // Limit history to 20 items for free users
+                            if history.len() > FREE_HISTORY_LIMIT {
+                                history.truncate(FREE_HISTORY_LIMIT);
+                                /*
+                                // Logic for preserving pinned items (Pro feature)
                                 if let Some(idx) = history.iter().rposition(|i| !i.pinned) {
                                     history.remove(idx);
                                 } else {
-                                    history.truncate(50);
+                                    history.truncate(FREE_HISTORY_LIMIT);
                                 }
+                                */
                             }
 
                             save_history(&app_handle, &history);
@@ -236,6 +243,7 @@ fn main() {
 
             // Configure the System Tray (Menu Bar icon)
             let show_i = MenuItem::with_id(app, "show", "Show ClipLumina", true, None::<&str>)?;
+            // let pin_i = MenuItem::with_id(app, "pin_feature", "Pin Items (Pro Only)", false, None::<&str>)?;
             let clear_i = MenuItem::with_id(app, "clear", "Clear History", true, None::<&str>)?;
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show_i, &clear_i, &quit_i])?;
@@ -257,7 +265,8 @@ fn main() {
                     }
                     "clear" => {
                         let mut history = load_history(app);
-                        history.retain(|item| item.pinned);
+                        // history.retain(|item| item.pinned); // Keep pinned items (Pro Feature)
+                        history.clear();
                         save_history(app, &history);
                         let _ = app.emit("clipboard://update", &history);
                     }
@@ -313,7 +322,7 @@ fn main() {
             get_history,
             delete_clip,
             copy_to_clip,
-            toggle_pin_clip,
+            // toggle_pin_clip, // Part of future Pro plan
             clear_history,
             get_current_clip
         ])

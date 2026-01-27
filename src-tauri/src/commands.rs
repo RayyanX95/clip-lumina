@@ -21,6 +21,7 @@ pub fn delete_clip(app: AppHandle, id: String) -> Vec<ClipItem> {
 }
 
 #[tauri::command]
+#[allow(dead_code)]
 pub fn toggle_pin_clip(app: AppHandle, id: String) -> Vec<ClipItem> {
     let mut history = load_history(&app);
     if let Some(item) = history.iter_mut().find(|i| i.id == id) {
