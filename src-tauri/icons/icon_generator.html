@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+        background: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+      .icon-container {
+        width: 512px;
+        height: 512px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 110px; /* macOS Squircle approximation */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        box-shadow:
+          inset 0 0 20px rgba(255, 255, 255, 0.05),
+          0 20px 40px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+      }
+      /* Subtle Glass Highlight */
+      .icon-container::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .clipboard {
+        width: 240px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .clipboard-top {
+        width: 100px;
+        height: 30px;
+        background: #333;
+        position: absolute;
+        top: -15px;
+        border-radius: 8px;
+      }
+      /* The "Lumina" Rings */
+      .rings {
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        opacity: 0.9;
+      }
+      .ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 18px solid transparent;
+      }
+      .cyan {
+        width: 100px;
+        height: 100px;
+        border-color: #00d2ff;
+        top: 10px;
+        left: 10px;
+        box-shadow: 0 0 30px rgba(0, 210, 255, 0.6);
+        filter: drop-shadow(0 0 10px #00d2ff);
+      }
+      .amber {
+        width: 100px;
+        height: 100px;
+        border-color: #ffb400;
+        bottom: 10px;
+        right: 10px;
+        box-shadow: 0 0 30px rgba(255, 180, 0, 0.6);
+        filter: drop-shadow(0 0 10px #ffb400);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="icon-container" id="icon">
+      <div class="clipboard">
+        <div class="clipboard-top"></div>
+        <div class="rings">
+          <div
+            class="ring cyan"
+            style="clip-path: polygon(0 0, 100% 0, 100% 60%, 0 60%)"
+          ></div>
+          <div
+            class="ring amber"
+            style="clip-path: polygon(0 40%, 100% 40%, 100% 100%, 0 100%)"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

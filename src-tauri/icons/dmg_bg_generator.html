@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { 
+    margin: 0; 
+    background: #05050a; 
+    width: 1320px; 
+    height: 800px; 
+    overflow: hidden; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+  }
+  .bg {
+    width: 1320px;
+    height: 800px;
+    background: radial-gradient(circle at 50% 40%, #1a1a3a 0%, #05050a 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+  }
+  
+  /* Decorative Glows */
+  .glow {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.15;
+  }
+  .glow-cyan { top: 100px; left: 100px; background: #00d2ff; }
+  .glow-amber { top: 100px; right: 100px; background: #ffb400; }
+
+  /* Target Zones (Logical size 140px -> Physical 280px) */
+  .zone {
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 60px;
+    top: 200px; 
+  }
+  /* Icon Positions (Logical 180 and 480 -> Physical 360 and 960) */
+  .app-zone { left: 220px; } 
+  .folder-zone { left: 820px; } 
+  
+  .label {
+    position: absolute;
+    top: 520px;
+    font-size: 28px;
+    font-weight: 600;
+    opacity: 0.4;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    width: 280px;
+    text-align: center;
+  }
+  .app-label { left: 220px; }
+  .folder-label { left: 820px; }
+
+  .arrow-container {
+    position: absolute;
+    top: 310px;
+    left: 560px;
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .arrow-line {
+    width: 120px;
+    height: 4px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  }
+  .arrow-head {
+    width: 24px;
+    height: 24px;
+    border-top: 4px solid rgba(255, 255, 255, 0.2);
+    border-right: 4px solid rgba(255, 255, 255, 0.2);
+    transform: rotate(45deg);
+    margin-left: -10px;
+  }
+
+  .main-text {
+    position: absolute;
+    bottom: 120px;
+    font-size: 48px;
+    font-weight: 200;
+    letter-spacing: -1px;
+    background: linear-gradient(to bottom, #ffffff 0%, #888888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+  <div class="bg" id="dmg-bg">
+     <div class="glow glow-cyan"></div>
+     <div class="glow glow-amber"></div>
+
+     <div class="zone app-zone"></div>
+     <div class="zone folder-zone"></div>
+     
+     <div class="arrow-container">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+     </div>
+
+     <div class="label app-label">ClipLumina</div>
+     <div class="label folder-label">Applications</div>
+
+     <div class="main-text">Drag to Install</div>
+  </div>
+</body>
+</html>
