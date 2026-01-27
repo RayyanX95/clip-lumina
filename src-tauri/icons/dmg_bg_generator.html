@@ -4,7 +4,7 @@
 <style>
   body { 
     margin: 0; 
-    background: #1b1712; /* deep warm beige-brown */
+    background: #94a3b8; /* Medium Slate Gray - Readable base for black text */
     width: 660px; 
     height: 400px; 
     overflow: hidden; 
@@ -14,12 +14,44 @@
   .bg {
     width: 660px;
     height: 400px;
-    background: #1f1a14;
+    /* Frosted App Theme: Mixes brand-bg-surface and brand-primary in a lightened state */
+    background: #cbd5e1;
     background:
-      radial-gradient(circle at 180px 170px, #3a3328 0%, #1f1a14 40%),
-      radial-gradient(circle at 480px 170px, #3a3328 0%, #1f1a14 40%);
+      radial-gradient(circle at 180px 170px, #e2e8f0 0%, #cbd5e1 55%),
+      radial-gradient(circle at 480px 170px, #e2e8f0 0%, #cbd5e1 55%);
     position: relative;
-    color: #f5f1e8;
+    color: #0f172a; /* brand-bg for visibility */
+  }
+
+  /* Core App Theme Accents - Shifted to more "Frosted" shades of the brand colors */
+  .accent {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .accent-primary {
+    top: -150px;
+    left: -100px;
+    background: #3b82f6; /* brand-primary */
+  }
+  .accent-secondary {
+    bottom: -150px;
+    right: -100px;
+    background: #6366f1; /* brand-secondary */
+  }
+  .accent-cyan {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    background: #22d3ee; /* brand-accent */
+    opacity: 0.1;
   }
 
   /* Subtle Folder Design Target */
@@ -32,29 +64,32 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1;
   }
 
   .folder-icon {
     width: 70px;
     height: 52px;
+    /* Uses brand-bg-surface for the folder base */
     background: linear-gradient(
       135deg,
-      rgba(245, 241, 232, 0.25) 0%,
-      rgba(245, 241, 232, 0.08) 100%
+      rgba(30, 41, 59, 0.2) 0%,
+      rgba(30, 41, 59, 0.1) 100%
     );
-    border: 1px solid rgba(245, 241, 232, 0.25);
-    border-radius: 8px;
+    border: 1px solid rgba(30, 41, 59, 0.3);
+    border-radius: 12px;
     position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
   }
 
   .folder-icon::before {
     content: '';
     position: absolute;
-    top: -6px;
+    top: -8px;
     left: 4px;
-    width: 24px;
-    height: 8px;
-    background: rgba(245, 241, 232, 0.25);
+    width: 28px;
+    height: 10px;
+    background: rgba(30, 41, 59, 0.2);
     border-radius: 4px 4px 0 0;
   }
 
@@ -66,55 +101,63 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
-    font-weight: 900;
-    color: rgba(120, 105, 85, 0.35);
+    font-size: 28px;
+    font-weight: 800;
+    color: rgba(30, 41, 59, 0.3);
+    letter-spacing: -1px;
   }
 
-  /* Simple Arrow */
+  /* Refined Modern Arrow using brand-primary-strong */
   .arrow {
     position: absolute;
-    left: 310px;
-    top: 165px;
-    width: 40px;
+    left: 300px;
+    top: 168px;
+    width: 60px;
     height: 10px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    z-index: 1;
   }
 
   .arrow-line {
-    width: 30px;
+    width: 45px;
     height: 2px;
-    background: rgba(245, 241, 232, 0.45);
+    background: linear-gradient(to right, transparent, rgba(37, 99, 235, 0.3), transparent);
   }
 
   .arrow-head {
-    width: 10px;
-    height: 10px;
-    border-top: 2px solid rgba(245, 241, 232, 0.45);
-    border-right: 2px solid rgba(245, 241, 232, 0.45);
+    width: 12px;
+    height: 12px;
+    border-top: 2px solid rgba(37, 99, 235, 0.3);
+    border-right: 2px solid rgba(37, 99, 235, 0.3);
     transform: rotate(45deg);
-    margin-left: -6px;
+    margin-left: -10px;
   }
 
-  /* Clean Helper Text */
+  /* Clean Helper Text using brand-bg-deep */
   .guide-text {
     position: absolute;
-    bottom: 80px;
+    bottom: 60px;
     width: 100%;
     text-align: center;
-    font-size: 16px;
-    font-weight: 300;
-    letter-spacing: 4px;
-    opacity: 0.55;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 5px;
     text-transform: uppercase;
-    color: #e6dfd2;
+    color: #020617;
+    opacity: 0.3;
+    z-index: 1;
   }
 </style>
 </head>
 
 <body>
   <div class="bg" id="dmg-bg">
+     <div class="accent accent-primary"></div>
+     <div class="accent accent-secondary"></div>
+     <div class="accent accent-cyan"></div>
+     
      <div class="applications-target">
         <div class="folder-icon"></div>
      </div>
@@ -124,7 +167,7 @@
         <div class="arrow-head"></div>
      </div>
 
-     <div class="guide-text">Drag to Applications</div>
+     <div class="guide-text">Drag to Install</div>
   </div>
 </body>
 </html>
