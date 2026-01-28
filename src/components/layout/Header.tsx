@@ -1,4 +1,5 @@
-import { Icons } from "../icons/Icons";
+import logo from '../../assets/logo.svg';
+import { Icons } from '../icons/Icons';
 
 interface HeaderProps {
   count: number;
@@ -10,9 +11,11 @@ export function Header({ count, onClear }: HeaderProps) {
     <header className="flex-none mb-4 px-2 pt-2">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-primary-strong to-brand-accent flex items-center justify-center shadow-lg shadow-brand-primary/20">
-            <Icons.Logo className="w-4 h-4 text-white" />
-          </span>
+          <img
+            src={logo}
+            className="w-8 h-8 drop-shadow-lg"
+            alt="ClipLumina Logo"
+          />
           ClipLumina
         </h1>
 

@@ -1,0 +1,40 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- macOS Squircle Shape -->
+  <path d="M512 0C140.8 0 0 140.8 0 512C0 883.2 140.8 1024 512 1024C883.2 1024 1024 883.2 1024 512C1024 140.8 883.2 0 512 0Z" fill="url(#paint0_linear)"/>
+  
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A1A2E"/>
+      <stop offset="1" stop-color="#16213E"/>
+    </linearGradient>
+    
+    <filter id="shadow" x="0" y="0" width="100%" height="100%">
+      <feDropShadow dx="0" dy="20" stdDeviation="20" flood-opacity="0.4"/>
+    </filter>
+    
+    <filter id="cyanGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="amberGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Clipboard -->
+  <rect x="272" y="212" width="480" height="600" rx="40" fill="#F5F5F5"/>
+  <rect x="412" y="182" width="200" height="60" rx="16" fill="#333333"/>
+
+  <!-- Rings (Lumina Logo) -->
+  <g transform="translate(352, 352)">
+    <!-- Cyan Ring (Top) -->
+    <path d="M160 20C82.7 20 20 82.7 20 160" stroke="#00D2FF" stroke-width="36" stroke-linecap="round" filter="url(#cyanGlow)"/>
+    <path d="M300 160C300 82.7 237.3 20 160 20" stroke="#00D2FF" stroke-width="36" stroke-linecap="round" filter="url(#cyanGlow)"/>
+    
+    <!-- Amber Ring (Bottom) -->
+    <path d="M160 300C237.3 300 300 237.3 300 160" stroke="#FFB400" stroke-width="36" stroke-linecap="round" filter="url(#amberGlow)"/>
+    <path d="M20 160C20 237.3 82.7 300 160 300" stroke="#FFB400" stroke-width="36" stroke-linecap="round" filter="url(#amberGlow)"/>
+  </g>
+</svg>
