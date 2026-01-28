@@ -68,9 +68,44 @@ Check out our [**Pro Features Vision**](./PRO_FEATURES.md) for a detailed look a
    git clone [https://github.com/your-username/clip-lumina.git](https://github.com/your-username/clip-lumina.git)
    ```
 
-## Convert DMG to AppImage
+## 🖼️ DMG Background Generation
+
+To update the DMG installer background based on the HTML design:
 
 ```bash
-# ./dmg_to_appimage.sh
 rm src-tauri/icons/dmg-background.png && npx capture-website-cli src-tauri/icons/dmg_bg_generator.html --output src-tauri/icons/dmg-background.png --width 660 --height 400 --scale-factor=1 && npm run tauri build
 ```
+
+---
+
+## 🎨 Logo & Icon Asset Generation
+
+ClipLumina uses a **Vector-based Asset Generation** workflow to ensure icons are high-resolution, perfectly transparent, and consistently branded across all platforms.
+
+### The Technique: HTML/CSS to SVG to Native Assets
+
+This technique involves designing the icon using web technologies (HTML/CSS) for rapid iteration, then converting that design into a mathematical Vector (SVG), and finally using the Tauri CLI to generate all platform-specific assets.
+
+#### 1. Designing with HTML/CSS
+
+We use `src-tauri/icons/icon_generator.html` to prototype the icon. This allows us to use CSS features like `linear-gradient`, `box-shadow`, and `border-radius` (Squircle) to match the macOS aesthetic.
+
+#### 2. Vectorization (Manual SVG)
+
+To ensure perfect transparency and scalability (avoiding the "white box" issue), we "re-code" the CSS design into `src-tauri/icons/icon.svg`. This creates a clean math-based path for the icon.
+
+#### 3. Asset Generation (Tauri CLI)
+
+We use the Tauri CLI to automatically generate the `.icns`, `.ico`, and various `.png` sizes for macOS, Windows, and Linux.
+
+**Command:**
+
+```bash
+npx tauri icon src-tauri/icons/icon.svg
+```
+
+### Why this approach?
+
+- **Retina Ready**: Icons stay crisp on all display resolutions.
+- **Perfect Transparency**: SVG ensures that the rounded corners (Squircles) are truly transparent on your desktop.
+- **Cross-Platform**: A single SVG source creates perfect icons for Mac, Windows, and Linux.
