@@ -1,111 +1,79 @@
-# Tauri + React + Typescript
+# ClipLumina 💡
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
-
-# 💡 ClipLumina
-
-**ClipLumina** is not just another clipboard manager; it's a high-performance, AI-integrated productivity companion built with **Tauri 2.0** and **Rust**. Designed to be lightweight, secure, and future-proof.
+**ClipLumina** is a premium, high-performance clipboard manager for macOS. Built with **Tauri 2.0** and **Rust**, it is designed to be lightweight, secure, and privacy-first.
 
 ---
 
-## 🚀 Why ClipLumina?
+## 🚀 Key Features
 
-Most clipboard tools are "Passive"—they just store text. **ClipLumina** is "Active." It understands what you copy and helps you take the next step instantly, while keeping your Mac's RAM happy.
-
----
-
-## 🛠 MVP Features (Phase 1)
-
-_Current focus: The core experience._
-
-- **Ultra-Light Background Listener**: Written in pure Rust to monitor your clipboard with near-zero CPU usage.
-- **System Tray Residency**: Lives in your macOS menu bar—no bulky windows needed.
-- **Live History List**: Real-time React UI updates the moment you press `Cmd+C`.
-- **Smart Truncation**: Clean UI that handles long strings and code snippets gracefully.
-- **Local Persistence**: Your history stays on your machine. Privacy by design.
+- **Menu Bar Residency**: Stays hidden in your macOS menu bar for instant access.
+- **Ultra-Lightweight Core**: Written in pure Rust for near-zero CPU and RAM usage.
+- **Smart Detection**: Automatically detects and categorizes:
+  - 🔗 **Links** (with domain favicon preview)
+  - 💻 **Code Snippets** (with syntax highlighting)
+  - 🎨 **Color Codes** (HEX/RGB/HSL with visual preview)
+  - 🖼️ **Images & Files** (high-resolution thumbnails)
+- **Local-First Persistence**: Your history stays on your machine via `tauri-plugin-store`.
+- **Auto-Paste**: Simulated keystroke to paste content immediately upon selection.
+- **Privacy by Design**: No telemetry, no cloud syncing, no tracking.
 
 ---
 
-## 🔮 Future Releases & Pro Features
+## 📦 Installation
 
-Check out our [**Pro Features Vision**](./PRO_FEATURES.md) for a detailed look at where ClipLumina is heading.
+### Download DMG
 
-### Phase 2: The "Lumina" Brain (AI Integration)
+Grab the latest `.dmg` from the [Releases](https://github.com/RayyanX95/clip-lumina/releases) page.
 
-- **AI Polish**: One-click to fix grammar or refactor code snippets directly from the history.
-- **Smart Categorization**: Automatically detects if a clip is a URL, Color Code, SSH Key, or Snippet.
-- **Instant Summary**: Copy a long article? Get a 3-bullet point summary in the tray.
+### Build from Source
 
-### Phase 3: Cross-Platform Sync (Tauri 2.0 Power)
+If you prefer to build it yourself:
 
-- **iOS & Android Companions**: Use Tauri 2.0's mobile support to sync your clipboard between your Mac and your phone.
-- **End-to-End Encryption**: Syncing data safely without us ever seeing it.
-
-### Phase 4: Developer Tools
-
-- **JSON Formatter**: Previews and formats minified JSON automatically.
-- **Color Picker**: Recognizes HEX/RGB codes and shows a visual preview.
-
----
-
-## 🏗 Tech Stack
-
-- **Core**: [Tauri 2.0](https://tauri.app/) (Rust)
-- **Frontend**: React + TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: React Hooks + Tauri Events
-
----
-
-## 📦 Getting Started
-
-1. **Clone the repo:**
+1. **Prerequisites**: [Rust](https://www.rust-lang.org/tools/install) and [Node.js](https://nodejs.org/).
+2. **Clone the repo**:
    ```bash
-   git clone [https://github.com/your-username/clip-lumina.git](https://github.com/your-username/clip-lumina.git)
+   git clone https://github.com/RayyanX95/clip-lumina.git
+   cd clip-lumina
+   ```
+3. **Install Dependencies**:
+   ```bash
+   npm install -g pnpm
+   pnpm install
+   ```
+4. **Run in Development**:
+   ```bash
+   pnpm tauri dev
+   ```
+5. **Build Production DMG**:
+   ```bash
+   pnpm tauri build
    ```
 
-## 🖼️ DMG Background Generation
+---
 
-To update the DMG installer background based on the HTML design:
+## 🛡️ Privacy & Security
 
-```bash
-rm src-tauri/icons/dmg-background.png && npx capture-website-cli src-tauri/icons/dmg_bg_generator.html --output src-tauri/icons/dmg-background.png --width 660 --height 400 --scale-factor=1 && npm run tauri build
-```
+ClipLumina handles your most sensitive data—your clipboard.
+
+- **Open Source**: Verify the code yourself.
+- **No Network Requests**: The core app does not communicate with any external servers.
+- **Local Database**: All history is stored locally in your Application Support folder.
 
 ---
 
-## 🎨 Logo & Icon Asset Generation
+## 🗺️ Roadmap
 
-ClipLumina uses a **Vector-based Asset Generation** workflow to ensure icons are high-resolution, perfectly transparent, and consistently branded across all platforms.
+- [ ] **Smart Folders**: Auto-categorization of permanent clips.
+- [ ] **Fuzzy Search**: Search through thousands of clips instantly.
+- [ ] **Lumina AI (Pro)**: Smart summaries and grammar refactoring (Server-side features).
+- [ ] **Theme Engine**: Custom accent colors and glassmorphism settings.
 
-### The Technique: HTML/CSS to SVG to Native Assets
+---
 
-This technique involves designing the icon using web technologies (HTML/CSS) for rapid iteration, then converting that design into a mathematical Vector (SVG), and finally using the Tauri CLI to generate all platform-specific assets.
+## 📄 License
 
-#### 1. Designing with HTML/CSS
+This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
 
-We use `src-tauri/icons/icon_generator.html` to prototype the icon. This allows us to use CSS features like `linear-gradient`, `box-shadow`, and `border-radius` (Squircle) to match the macOS aesthetic.
+---
 
-#### 2. Vectorization (Manual SVG)
-
-To ensure perfect transparency and scalability (avoiding the "white box" issue), we "re-code" the CSS design into `src-tauri/icons/icon.svg`. This creates a clean math-based path for the icon.
-
-#### 3. Asset Generation (Tauri CLI)
-
-We use the Tauri CLI to automatically generate the `.icns`, `.ico`, and various `.png` sizes for macOS, Windows, and Linux.
-
-**Command:**
-
-```bash
-npx tauri icon src-tauri/icons/icon.svg
-```
-
-### Why this approach?
-
-- **Retina Ready**: Icons stay crisp on all display resolutions.
-- **Perfect Transparency**: SVG ensures that the rounded corners (Squircles) are truly transparent on your desktop.
-- **Cross-Platform**: A single SVG source creates perfect icons for Mac, Windows, and Linux.
+Created with ❤️ by the Lumina team.
