@@ -6,10 +6,12 @@ mod state;
 use arboard::Clipboard;
 use chrono::Utc;
 use std::sync::atomic::Ordering;
+#[cfg(target_os = "macos")]
+use tauri::ActivationPolicy;
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
-    ActivationPolicy, Emitter, Manager,
+    Emitter, Manager,
 };
 use tauri_plugin_opener::OpenerExt;
 use uuid::Uuid;
