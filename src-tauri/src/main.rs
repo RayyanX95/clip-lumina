@@ -7,10 +7,11 @@ use arboard::Clipboard;
 use chrono::Utc;
 use std::sync::atomic::Ordering;
 use tauri::{
-    menu::{Menu, MenuItem},
+    menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
     ActivationPolicy, Emitter, Manager,
 };
+use tauri_plugin_opener::OpenerExt;
 use uuid::Uuid;
 
 use base64::engine::general_purpose::STANDARD as BASE64;
@@ -51,6 +52,7 @@ fn get_macos_file_path() -> Option<String> {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let app_handle = app.handle().clone();
 
@@ -242,11 +244,14 @@ fn main() {
             });
 
             // Configure the System Tray (Menu Bar icon)
-            let show_i = MenuItem::with_id(app, "show", "Show ClipLumina", true, None::<&str>)?;
-            // let pin_i = MenuItem::with_id(app, "pin_feature", "Pin Items (Pro Only)", false, None::<&str>)?;
-            let clear_i = MenuItem::with_id(app, "clear", "Clear History", true, None::<&str>)?;
-            let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show_i, &clear_i, &quit_i])?;
+            let show_i = MenuItem::with_id(app, "show", "✨ Show ClipLumina", true, None::<&str>)?;
+            let update_i =
+                MenuItem::with_id(app, "update", "🔄 Check for Updates...", true, None::<&str>)?;
+            let clear_i = MenuItem::with_id(app, "clear", "🗑️ Clear History", true, None::<&str>)?;
+            let quit_i = MenuItem::with_id(app, "quit", "🛑 Quit", true, None::<&str>)?;
+            let sep = PredefinedMenuItem::separator(app)?;
+
+            let menu = Menu::with_items(app, &[&show_i, &update_i, &sep, &clear_i, &quit_i])?;
 
             let tray_icon =
                 tauri::image::Image::from_bytes(include_bytes!("../icons/tray-icon.png"))
@@ -263,6 +268,10 @@ fn main() {
                             let _ = window.show();
                             let _ = window.set_focus();
                         }
+                    }
+                    "update" => {
+                        let url = String::from("https://RayyanX95.github.io/clip-lumina");
+                        let _ = app.opener().open_url(url, None::<String>);
                     }
                     "clear" => {
                         let mut history = load_history(app);
