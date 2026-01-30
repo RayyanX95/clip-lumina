@@ -1,60 +1,80 @@
+# This workflow automates the build and release process for ClipLumina
 name: 'Publish'
 
 on:
   push:
+    # Trigger the workflow only when a new tag starting with 'v' is pushed (e.g., v1.0.0)
     tags:
       - 'v*'
 
 jobs:
   publish:
+    # Set permissions to allow the workflow to create and upload releases
     permissions:
       contents: write
     strategy:
+      # If one platform fails, continue building the others
       fail-fast: false
       matrix:
         include:
           - platform: 'macos-latest'
-            args: '--target universal-apple-darwin' # Builds for both Intel and Apple Silicon
+            # For macOS, we build a universal binary that works on both Intel and Apple Silicon
+            args: '--target universal-apple-darwin'
           - platform: 'windows-latest'
             args: ''
 
+    # Run the build on the platform defined in the matrix (macOS or Windows)
     runs-on: ${{ matrix.platform }}
     steps:
+      # 1. Checkout the source code from the repository
       - uses: actions/checkout@v4
 
+      # 2. Set up the Node.js environment
       - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      # 3. Install pnpm package manager
       - name: install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
+      # 4. Install the Rust toolchain (required for Tauri)
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          # Adding targets for macOS universal build
+          # If on macOS, add support for both Intel (x86_64) and Apple Silicon (aarch64) targets
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
+      # 5. Install the frontend dependencies defined in package.json
       - name: install frontend dependencies
         run: pnpm install
 
+      # 6. Build the Tauri application and create the release
       - name: build tauri app
         uses: tauri-apps/tauri-action@v0
         env:
+          # Required token to authenticate with GitHub for release creation
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # macOS signing secrets
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          
+          # ⚠️ MAC SIGNING (OPTIONAL):
+          # Uncomment the lines below ONLY after you have added your Apple Developer 
+          # certificates to your GitHub Repository Secrets.
+          # Building without these will result in the "App is damaged" message for users.
+          
+          # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          # APPLE_ID: ${{ secrets.APPLE_ID }}
+          # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
+          # The tag name to use for the release (v__VERSION__ is a Tauri shortcut for the version in tauri.conf.json)
           tagName: v__VERSION__
           releaseName: 'ClipLumina v__VERSION__'
           releaseBody: 'See the assets to download this version.'
+          # Create the release as a draft so you can review and add notes before publishing
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
