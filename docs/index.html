@@ -322,10 +322,15 @@
             your local machine.</p>
         </div>
 
-        <div style="margin-top: 2rem;">
-          <p style="font-size: 0.85rem; color: var(--text-secondary);">Advanced: If the above doesn't work, run this in
-            Terminal:</p>
+        <div style="margin-top: 2.5rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            <strong>Still having trouble?</strong> If the app still won't open, you can manually unlock it by pasting
+            this single command into your <strong>Terminal</strong> and pressing Enter:
+          </p>
           <code class="code-snippet">xattr -d com.apple.quarantine /Applications/ClipLumina.app</code>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.75rem; font-style: italic;">
+            *After running the command, remember to <strong>Right-click > Open</strong> the app one last time.
+          </p>
         </div>
       </div>
     </section>
