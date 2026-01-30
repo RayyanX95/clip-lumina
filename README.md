@@ -1,5 +1,7 @@
 # ClipLumina 💡
 
+**[🌐 Website & Installation Guide](https://RayyanX95.github.io/clip-lumina)**
+
 **ClipLumina** is a premium, high-performance clipboard manager for macOS. Built with **Tauri 2.0** and **Rust**, it is designed to be lightweight, secure, and privacy-first.
 
 ---
