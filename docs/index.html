@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ClipLumina | The Premium Clipboard Manager for macOS</title>
+  <title>ClipLumina | The Premium Clipboard Manager</title>
   <meta name="description"
-    content="ClipLumina is a sleek, high-performance, and privacy-first clipboard manager for macOS. Built with Rust and Tauri for near-zero background CPU usage.">
+    content="ClipLumina is a sleek, high-performance, and privacy-first clipboard manager. Built with Rust and Tauri for near-zero background CPU usage. Available for macOS and Windows.">
 
   <!-- SEO & Social Media Meta Tags -->
-  <meta property="og:title" content="ClipLumina | Premium Clipboard Manager for macOS">
+  <meta property="og:title" content="ClipLumina | Premium Clipboard Manager">
   <meta property="og:description"
     content="Elevate your workflow with a lightweight, secure clipboard manager. No telemetry, 100% local-first.">
   <meta property="og:image" content="https://RayyanX95.github.io/clip-lumina/assets/logo.png">
@@ -17,7 +17,7 @@
   <meta property="og:type" content="website">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ClipLumina | Premium macOS Clipboard Manager">
+  <meta name="twitter:title" content="ClipLumina | Premium Clipboard Manager">
   <meta name="twitter:description"
     content="Lightweight, secure, and built with Rust. Your clipboard history stays on your machine.">
   <meta name="twitter:image" content="https://RayyanX95.github.io/clip-lumina/assets/logo.png">
@@ -121,6 +121,13 @@
       margin: 0 auto 3rem;
     }
 
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .download-btn {
       display: inline-block;
       background: var(--accent-color);
@@ -138,6 +145,17 @@
       transform: translateY(-5px);
       box-shadow: 0 15px 40px var(--accent-glow);
       filter: brightness(1.2);
+    }
+
+    .download-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: none;
+    }
+
+    .download-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
     .version-text {
@@ -281,14 +299,19 @@
       <img src="assets/logo.png" alt="ClipLumina"
         style="width: 120px; height: 120px; margin-bottom: 2rem; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
       <h1>Elevate your clipboard.</h1>
-      <p>A lightweight, privacy-first clipboard manager designed for macOS. Fast, secure, and built with Rust.</p>
-      <a href="https://github.com/RayyanX95/clip-lumina/releases/latest" class="download-btn">Download for macOS</a>
-      <span class="version-text">v1.0.3 | Apple Silicon & Intel</span>
+      <p>A lightweight, privacy-first clipboard manager designed for modern computers. Fast, secure, and built with Rust.</p>
+      
+      <div class="btn-group">
+        <a href="https://github.com/RayyanX95/clip-lumina/releases/latest" class="download-btn">Download for macOS</a>
+        <a href="https://github.com/RayyanX95/clip-lumina/releases/latest" class="download-btn secondary">Download for Windows</a>
+      </div>
+      
+      <span class="version-text">v1.0.3 | macOS & Windows</span>
     </section>
 
     <section class="installation-guide">
       <div class="guide-card">
-        <h2>Bypass "Damaged App" Warning</h2>
+        <h2>macOS Installation</h2>
         <div class="steps">
           <div class="step">
             <div class="step-number">1</div>
@@ -336,7 +359,7 @@
     </section>
 
     <footer>
-      <p>&copy; 2026 ClipLumina. Built with ❤️ for the macOS community.</p>
+      <p>&copy; 2026 ClipLumina. Built with ❤️ for the community.</p>
     </footer>
   </div>
 </body>
