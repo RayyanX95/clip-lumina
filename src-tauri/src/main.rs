@@ -28,7 +28,7 @@ use crate::history::{load_history, save_history};
 use crate::models::ClipItem;
 use crate::state::{IGNORE_NEXT_CLIP, LAST_CLICK};
 
-const FREE_HISTORY_LIMIT: usize = 20;
+const FREE_HISTORY_LIMIT: usize = 30;
 // const PRO_HISTORY_LIMIT: usize = 1000;
 
 /// Specialized macOS helper to retrieve the actual file path when a file is copied in Finder.
@@ -246,14 +246,23 @@ fn main() {
             });
 
             // Configure the System Tray (Menu Bar icon)
+            let version = app.package_info().version.to_string();
+            let version_i =
+                MenuItem::with_id(app, "version", format!("v{}", version), false, None::<&str>)?;
+
             let show_i = MenuItem::with_id(app, "show", "✨ Show ClipLumina", true, None::<&str>)?;
             let update_i =
-                MenuItem::with_id(app, "update", "🔄 Check for Updates...", true, None::<&str>)?;
+                MenuItem::with_id(app, "update", "🔄 Check for Updates", true, None::<&str>)?;
             let clear_i = MenuItem::with_id(app, "clear", "🗑️ Clear History", true, None::<&str>)?;
             let quit_i = MenuItem::with_id(app, "quit", "🛑 Quit", true, None::<&str>)?;
             let sep = PredefinedMenuItem::separator(app)?;
 
-            let menu = Menu::with_items(app, &[&show_i, &update_i, &sep, &clear_i, &quit_i])?;
+            let menu = Menu::with_items(
+                app,
+                &[
+                    &show_i, &update_i, &sep, &clear_i, &quit_i, &sep, &version_i,
+                ],
+            )?;
 
             let tray_icon =
                 tauri::image::Image::from_bytes(include_bytes!("../icons/tray-icon.png"))
@@ -272,7 +281,9 @@ fn main() {
                         }
                     }
                     "update" => {
-                        let url = String::from("https://RayyanX95.github.io/clip-lumina");
+                        let url = String::from(
+                            "https://github.com/RayyanX95/clip-lumina/releases/latest",
+                        );
                         let _ = app.opener().open_url(url, None::<String>);
                     }
                     "clear" => {
