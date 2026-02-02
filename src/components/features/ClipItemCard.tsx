@@ -205,7 +205,7 @@ export function ClipItemCard({
             </div>
           ) : (
             <pre
-              className={`text-xs font-mono rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border select-none ${
+              className={`text-xs font-mono rounded p-2 overflow-hidden text-ellipsis whitespace-nowrap border select-none max-w-full block ${
                 item.pinned
                   ? 'bg-black/30 text-white border-brand-primary/10'
                   : 'bg-black/20 text-brand-text border-white/5 group-hover:border-white/10'
