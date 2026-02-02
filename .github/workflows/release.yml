@@ -58,6 +58,8 @@ jobs:
         env:
           # Required token to authenticate with GitHub for release creation
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           
           # ⚠️ MAC SIGNING (OPTIONAL):
           # Uncomment the lines below ONLY after you have added your Apple Developer 

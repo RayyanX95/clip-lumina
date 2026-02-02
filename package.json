@@ -1,7 +1,7 @@
 {
   "name": "clip-lumina",
   "private": false,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -13,8 +13,11 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2.6.0",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-store": "^2.4.2",
+    "@tauri-apps/plugin-updater": "^2.9.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
