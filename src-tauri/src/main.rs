@@ -13,7 +13,6 @@ use tauri::{
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
     Emitter, Manager,
 };
-use tauri_plugin_opener::OpenerExt;
 use uuid::Uuid;
 
 use base64::engine::general_purpose::STANDARD as BASE64;
@@ -54,6 +53,9 @@ fn get_macos_file_path() -> Option<String> {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let app_handle = app.handle().clone();
@@ -281,10 +283,11 @@ fn main() {
                         }
                     }
                     "update" => {
-                        let url = String::from(
-                            "https://github.com/RayyanX95/clip-lumina/releases/latest",
-                        );
-                        let _ = app.opener().open_url(url, None::<String>);
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            let _ = window.emit("update-check", ());
+                        }
                     }
                     "clear" => {
                         let mut history = load_history(app);

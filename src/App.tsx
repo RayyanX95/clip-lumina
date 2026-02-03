@@ -1,10 +1,12 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useClipboardHistory } from './hooks/useClipboardHistory';
+import { useUpdater } from './hooks/useUpdater';
 import { Header } from './components/layout/Header';
 import { EmptyState } from './components/features/EmptyState';
 import { ClipItemCard } from './components/features/ClipItemCard';
 
 function App() {
+  useUpdater();
   const { history, deleteClip, togglePin, clearAll, copyToClipboard } =
     useClipboardHistory();
 
@@ -19,7 +21,7 @@ function App() {
   });
 
   return (
-    <div className="h-screen bg-brand-bg bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-bg via-brand-bg-deep to-brand-bg flex flex-col p-4 text-brand-text font-sans overflow-hidden">
+    <div className="h-screen bg-brand-bg bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-brand-bg via-brand-bg-deep to-brand-bg flex flex-col p-4 text-brand-text font-sans overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-[-20%] right-[-20%] w-[50%] h-[50%] rounded-full bg-brand-primary-strong/5 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-secondary-strong/5 blur-[80px] pointer-events-none" />
