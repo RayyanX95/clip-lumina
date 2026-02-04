@@ -79,4 +79,5 @@ jobs:
           # Create the release as a draft so you can review and add notes before publishing
           releaseDraft: false
           prerelease: false
+          includeUpdaterJson: true
           args: ${{ matrix.args }}
