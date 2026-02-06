@@ -3,6 +3,7 @@ import { check } from '@tauri-apps/plugin-updater';
 import { ask, message } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
 import { relaunch } from '@tauri-apps/plugin-process';
+import { invoke } from '@tauri-apps/api/core';
 
 export function useUpdater() {
   useEffect(() => {
@@ -33,6 +34,7 @@ export function useUpdater() {
     }
 
     try {
+      await invoke('set_suppress_hide', { suppress: true });
       const update = await check();
       if (update) {
         const yes = await ask(
@@ -56,6 +58,8 @@ export function useUpdater() {
     } catch (error) {
       console.error(error);
       await message(`Error checking for updates: ${error}`, { title: 'Update Error', kind: 'error' });
+    } finally {
+      await invoke('set_suppress_hide', { suppress: false });
     }
   };
 }

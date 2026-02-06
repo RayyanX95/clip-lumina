@@ -25,7 +25,7 @@ use urlencoding;
 use crate::commands::*;
 use crate::history::{load_history, save_history};
 use crate::models::ClipItem;
-use crate::state::{IGNORE_NEXT_CLIP, LAST_CLICK};
+use crate::state::{IGNORE_NEXT_CLIP, LAST_BLUR, LAST_CLICK, SUPPRESS_HIDE};
 
 const FREE_HISTORY_LIMIT: usize = 30;
 // const PRO_HISTORY_LIMIT: usize = 1000;
@@ -315,6 +315,12 @@ fn main() {
                         }
                         LAST_CLICK.store(now, Ordering::Relaxed);
 
+                        let last_blur = LAST_BLUR.load(Ordering::Relaxed);
+                        // Prevent "flashing" if the window was JUST hidden by a blur event (e.g. clicking the tray icon)
+                        if now - last_blur < 150 {
+                            return;
+                        }
+
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
                             let is_visible = window.is_visible().unwrap_or(false);
@@ -336,6 +342,11 @@ fn main() {
                 window.on_window_event(move |event| {
                     if let tauri::WindowEvent::Focused(focused) = event {
                         if !focused {
+                            // Check if we should suppress the hide (e.g. update dialog is open)
+                            if SUPPRESS_HIDE.load(Ordering::Relaxed) {
+                                return;
+                            }
+                            LAST_BLUR.store(Utc::now().timestamp_millis(), Ordering::Relaxed);
                             let _ = w_clone.hide();
                         }
                     }
@@ -350,7 +361,8 @@ fn main() {
             copy_to_clip,
             // toggle_pin_clip, // Part of future Pro plan
             clear_history,
-            get_current_clip
+            get_current_clip,
+            set_suppress_hide
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

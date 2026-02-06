@@ -78,3 +78,10 @@ pub fn get_current_clip() -> String {
     let mut clipboard = Clipboard::new().unwrap();
     clipboard.get_text().unwrap_or_else(|_| "".to_string())
 }
+
+#[tauri::command]
+pub fn set_suppress_hide(suppress: bool) {
+    use crate::state::SUPPRESS_HIDE;
+    use std::sync::atomic::Ordering;
+    SUPPRESS_HIDE.store(suppress, Ordering::Relaxed);
+}
