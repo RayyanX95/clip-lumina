@@ -11,25 +11,31 @@ export function useUpdater() {
 
     const setupListener = async () => {
       unlisten = await listen('update-check', async () => {
-        await checkForUpdates();
+        // When checking manually, we show a "Checking..." message first
+        await message('Checking for updates...', { title: 'ClipLumina', kind: 'info' });
+        await checkForUpdates(false);
       });
     };
 
     setupListener();
+
+    // Also check automatically on startup (silently)
+    checkForUpdates(true);
 
     return () => {
       if (unlisten) unlisten();
     };
   }, []);
 
-  const checkForUpdates = async () => {
+  const checkForUpdates = async (silent: boolean) => {
     // In development, the updater plugin will throw an error because the app isn't signed.
-    // We can intercept this to show a friendly development message.
     if (import.meta.env.DEV) {
-      await message('The auto-updater only works in the built/production app (signed/bundled).', { 
-        title: 'Development Mode', 
-        kind: 'info' 
-      });
+      if (!silent) {
+        await message('The auto-updater only works in the built/production app (signed/bundled).', { 
+          title: 'Development Mode', 
+          kind: 'info' 
+        });
+      }
       return;
     }
 
@@ -53,11 +59,15 @@ export function useUpdater() {
           await relaunch();
         }
       } else {
-        await message('You are on the latest version.', { title: 'No Updates' });
+        if (!silent) {
+          await message('You are on the latest version.', { title: 'No Updates' });
+        }
       }
     } catch (error) {
       console.error(error);
-      await message(`Error checking for updates: ${error}`, { title: 'Update Error', kind: 'error' });
+      if (!silent) {
+        await message(`Error checking for updates: ${error}`, { title: 'Update Error', kind: 'error' });
+      }
     } finally {
       await invoke('set_suppress_hide', { suppress: false });
     }
