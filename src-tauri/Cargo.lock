@@ -61,7 +61,7 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.100"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a23eb6b1614318a8071c9b2521f36b424b2c83db5eb3a0fead4a6c0809af6e61"
 
@@ -596,7 +596,7 @@ dependencies = [
 
 [[package]]
 name = "clip-lumina"
-version = "1.0.10"
+version = "1.0.12"
 dependencies = [
  "arboard",
  "base64 0.22.1",
@@ -982,7 +982,7 @@ dependencies = [
 
 [[package]]
 name = "dtoa"
-version = "1.0.11"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c3cf4824e2d5f025c7b531afcb2325364084a16806f6d47fbc1f5fbd9960590"
 
