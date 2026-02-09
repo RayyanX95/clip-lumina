@@ -11,8 +11,6 @@ export function useUpdater() {
 
     const setupListener = async () => {
       unlisten = await listen('update-check', async () => {
-        // When checking manually, we show a "Checking..." message first
-        await message('Checking for updates...', { title: 'ClipLumina', kind: 'info' });
         await checkForUpdates(false);
       });
     };
