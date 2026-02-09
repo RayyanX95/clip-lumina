@@ -27,7 +27,7 @@ use crate::history::{load_history, save_history};
 use crate::models::ClipItem;
 use crate::state::{IGNORE_NEXT_CLIP, LAST_BLUR, LAST_CLICK, SUPPRESS_HIDE};
 
-const FREE_HISTORY_LIMIT: usize = 30;
+const FREE_HISTORY_LIMIT: usize = 50;
 // const PRO_HISTORY_LIMIT: usize = 1000;
 
 /// Specialized macOS helper to retrieve the actual file path when a file is copied in Finder.
