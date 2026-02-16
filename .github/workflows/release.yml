@@ -20,10 +20,8 @@ jobs:
           - platform: 'macos-latest'
             # For macOS, we build a universal binary that works on both Intel and Apple Silicon
             args: '--target universal-apple-darwin'
-          - platform: 'windows-latest'
-            args: ''
 
-    # Run the build on the platform defined in the matrix (macOS or Windows)
+    # Run the build on the platform defined in the matrix (macOS only)
     runs-on: ${{ matrix.platform }}
     steps:
       # 1. Checkout the source code from the repository
