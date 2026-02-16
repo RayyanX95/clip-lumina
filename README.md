@@ -2,6 +2,10 @@
 
 **[🌐 Website & Installation Guide](https://RayyanX95.github.io/clip-lumina)**
 
+<div align="center">
+  <img src="docs/assets/screenshot.png" alt="ClipLumina Screenshot" width="400" />
+</div>
+
 **ClipLumina** is a premium, high-performance clipboard manager for macOS. Built with **Tauri 2.0** and **Rust**, it is designed to be lightweight, secure, and privacy-first.
 
 ---
@@ -29,8 +33,9 @@ Grab the latest `.dmg` from the [Releases](https://github.com/RayyanX95/clip-lum
 
 > [!IMPORTANT]  
 > **"ClipLumina is damaged and can't be opened"**  
-> If you see this message, it is because the app is not signed by an Apple Developer account. 
+> If you see this message, it is because the app is not signed by an Apple Developer account.
 > To fix this, run the following command in your terminal:
+>
 > ```bash
 > xattr -d com.apple.quarantine /Applications/ClipLumina.app
 > ```
@@ -60,12 +65,16 @@ If you prefer to build it yourself:
    ```
 
 ### GitHub Releases
+
 The project includes a GitHub Action to automate releases. To trigger a build:
+
 1. Update version in `src-tauri/tauri.conf.json`.
 2. Push a tag: `git tag -a v1.0.0 -m "v1.0.0" && git push origin v1.0.0`.
 
 #### Required GitHub Secrets for macOS Signing:
+
 To prevent the "damaged" error for all users, add these to your repo secrets:
+
 - `APPLE_CERTIFICATE`: Base64 encoded `.p12` certificate.
 - `APPLE_CERTIFICATE_PASSWORD`: Password for the `.p12`.
 - `APPLE_ID`: Your Apple ID email.
